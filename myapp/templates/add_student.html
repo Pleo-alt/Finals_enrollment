@@ -148,10 +148,13 @@
     
 <!-- Semester Dropdown -->
 <div class="form-group">
+    
     <label for="semester">Semester:</label>
     <select id="semester" name="semester" required>
         {% for semester in semesters %}
-            <option value="{{ semester.semester_name }}">{{ semester.semester_name }}</option>
+            <option value="{{ semester.id }}" {% if semester.id == student.semester.id %}selected{% endif %}>
+                {{ semester.semester_name }}
+            </option>
         {% empty %}
             <option value="">No semesters available</option>
         {% endfor %}

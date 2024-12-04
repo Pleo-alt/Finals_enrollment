@@ -80,6 +80,7 @@ class Subject(models.Model):
 
 # Student model, including student_id generation and handling of enrollment
 class Student(models.Model):
+
     course_name = models.ForeignKey(Course, on_delete=models.CASCADE)
     year_level = models.ForeignKey(Yearlevel, on_delete=models.CASCADE)
     section_name = models.ForeignKey(Section, on_delete=models.CASCADE)

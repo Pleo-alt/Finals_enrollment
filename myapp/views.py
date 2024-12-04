@@ -214,16 +214,16 @@ def add_student(request, course_id, year_level):
     # If the form is submitted (POST request)
     if request.method == 'POST':
         first_name = request.POST.get('firstName')
-        middle_name = request.POST.get('middleName') or None
+        middle_name = request.POST.get('middleName')
         last_name = request.POST.get('lastName')
         age = request.POST.get('age')
-        semester_name = request.POST.get('semester')
+        semester_id = request.POST.get('semester')  # Get the selected semester ID
         section_name = request.POST.get('section')
         status = request.POST.get('status')
         subject_ids = request.POST.getlist('subjects')
 
         # Get the selected semester and section
-        semester = get_object_or_404(Semester, semester_name=semester_name)
+        semester = get_object_or_404(Semester, id=semester_id)  # Fetch by ID, not name
         section = get_object_or_404(Section, section_name=section_name, course_name=course, year_level=year_level_obj)
 
         # Create a new student instance
@@ -356,7 +356,6 @@ def edit_student(request, student_id):
         "subjects": subjects,
     }
     return render(request, "edit_student.html", context)
-
 def delete_student(request, student_id):
     # Fetch the student record by its ID
     student = get_object_or_404(Student, id=student_id)
