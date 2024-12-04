@@ -1,0 +1,573 @@
+/* General Reset */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    padding: 0;  /* Optional: Remove padding if needed */
+}
+
+/* Top Navbar */
+.top-navbar {
+    background-color: darkgreen;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 20px;
+    color: white;
+    position: relative;
+}
+
+/* Center the title in the navbar */
+.top-navbar .navbar-title {
+    position: absolute; /* Allows it to be centered independently */
+    left: 20%;
+    transform: translateX(-50%); /* Centers the text horizontally */
+    color: white;
+    font-size: 20px; /* Adjust the font size as needed */
+    font-weight: bold;
+}
+.top-navbar .navbar-title a {
+    text-decoration: none; /* Removes the default underline from the link */
+    color: white; /* Ensures the link text color remains white */
+}
+
+/* Adjust the top-nav-list if needed */
+.top-navbar .top-nav-list {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+    margin-left: auto;
+}
+
+.top-navbar .top-nav-list li {
+    margin-right: 20px;
+}
+
+.top-navbar .top-nav-list li a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+
+.top-navbar .top-nav-list li a:hover {
+    text-decoration: underline;
+}
+
+
+.main-header {
+    text-align: center;
+    padding: 60px 20px;
+    margin-bottom: 40px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    color: white;
+}
+
+.main-header h1 {
+    font-size: 50px; /* Larger font size for better impact */
+    font-family: 'Roboto', sans-serif; /* Sleek, modern font */
+    font-weight: 700; /* Bold text for prominence */
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3); /* Subtle text shadow for depth */
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+}
+
+.main-header h3 {
+    font-size: 21px; /* Slightly larger subheading */
+    font-family: 'Open Sans', sans-serif; /* Modern sans-serif font */
+    font-weight: 300; /* Light weight for a sleek look */
+    color: #f5f5f5;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+/* Add a divider between the header and content */
+.main-header:after {
+    content: '';
+    display: block;
+    margin: 20px auto 0;
+    width: 150px;
+    height: 4px;
+    background-color: #fff;
+    border-radius: 50px;
+}
+/* Main container style */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px; /* Increase the gap between the two boxes for better spacing */
+    margin-top: 2%;
+    margin-bottom: 2%;
+    margin-left: 3%;
+}
+
+/* Style for each course box */
+.course-box {
+    position: relative;
+    color: white;
+    text-align: center;
+    padding: 25px 20px; /* Adjusted padding for better content spacing */
+    width: 34.5%;
+    border-radius: 15px;
+    overflow: hidden; /* Hide the list and background when not hovered */
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle box shadow for depth */
+    background-size: cover; /* Make the background image cover the whole box */
+    background-position: center; /* Center the background image */
+    background-repeat: no-repeat; /* Prevent repeating the background image */
+    height: 200px; /* Set the desired height for the course box */
+}
+
+/* Add a background image for both boxes */
+.course-box::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover;
+    background-position: center;
+    z-index: -1; /* Ensure the background stays behind the content */
+    transition: all 0.3s ease;
+    opacity: 1; /* Initially, the background is fully visible */
+}
+
+.header-logo img {
+    width: 130px;
+    height: auto;
+    margin-top: 30px;
+    transition: opacity 0.3s ease, visibility 0.3s ease; /* Smooth transition for logo disappearance */
+}
+
+/* Title (course name) styling */
+h2 {
+    margin: 15px 0; /* Adjusted margin for better spacing around the title */
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: opacity 0.3s ease; /* Smooth transition for title disappearance */
+}
+
+/* Styling for the year list (hidden initially) */
+.year-list {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 15px;
+    opacity: 0;
+    position: absolute;
+    bottom: -60px; /* Positioned further below for more room */
+    left: 0;
+    right: 0;
+    transition: bottom 0.3s ease, opacity 0.3s ease; /* Slide up and fade in */
+    border-radius: 10px; /* Rounded corners */
+    text-decoration: none;
+}
+
+/* Show the year list on hover */
+.course-box:hover .year-list {
+    bottom: 10px; /* Slide up */
+    opacity: 1; /* Make the list visible */
+    text-decoration: none;
+    background: darkgreen;
+}
+.course-box:hover::before {
+    background-color: darkgreen; 
+}
+
+/* Styling for each list item */
+.year-list li {
+    color: white;
+    margin: 5px 0; /* Increased margin for better spacing between items */
+    font-size: 18px; /* Increased font size */
+    font-family: 'Arial', sans-serif; /* Changed font-family */
+    font-weight: 500; /* Adjusted font-weight to medium */
+    padding: 12px 20px; /* Added padding for larger clickable area */
+    border-radius: 5px; /* Rounded corners for each list item */
+    position: relative; /* Needed for the line animation */
+    overflow: hidden; /* Prevents the line from spilling out of the list item */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth hover effect */
+}
+
+.year-list li a {
+    text-decoration: none;  /* Remove the underline */
+    color: white;           /* Set the text color to white */
+    font-weight: 500;       /* Ensure consistent font weight */
+    display: block;         /* Make the anchor tag take the full width of the li */
+}
+
+/* Line animation on hover for list items */
+.year-list li::before {
+    content: "";
+    position: absolute;
+    bottom: 0; /* Align the line to the bottom of the list item */
+    left: 50%; /* Start the line from the center */
+    width: 0%; /* Initially, the line has no width */
+    height: 5px; /* Line thickness */
+    background-color: white; /* Line color */
+    transition: width 0.3s ease, left 0.3s ease; /* Smooth expansion of the line */
+}
+
+/* On hover, the line expands */
+.year-list li:hover::before {
+    width: 100%; /* The line expands to full width */
+    left: 0; /* The line starts expanding from the left side */
+    transition: all 0.7s ease-in-out;
+}
+
+/* Hover effect on the boxes */
+.course-box:hover {
+    transform: scale(1.05); /* Slightly enlarge the box */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Shadow effect around the box */
+}
+
+/* Hide the logo and title text when hovered (disappear completely) */
+.course-box:hover .header-logo img,
+.course-box:hover h2 {
+    opacity: 0; /* Make the logo and text disappear */
+    visibility: hidden; /* Ensure they are completely hidden */
+}
+
+.toggleBtn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+
+/* Sidebar */
+
+.sidebar {
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    background: #151A2D;
+    transition: left 0.4s ease;
+    z-index: 1000;
+}
+
+/* When collapsed, hide both the icons and the labels */
+.sidebar.collapsed {
+    width: 60px; /* Reduced width when collapsed to fit icons */
+}
+
+/* Sidebar Header */
+.sidebar-header {
+    padding: 50px;
+    text-align: center;
+    background-color: #151A2D;
+}
+
+/* Adjust the header padding when the sidebar is collapsed */
+.sidebar.collapsed .sidebar-header {
+    padding: 10px; /* Reduce padding when collapsed */
+}
+
+/* Hide logo when collapsed */
+.sidebar.collapsed .header-logo {
+    display: none;  /* Hide the logo when the sidebar is collapsed */
+}
+
+.sidebar-header .header-logo img {
+    width: 75%;
+    height: auto;
+}
+
+/* Sidebar Navigation */
+.sidebar-nav .nav-list {
+    list-style: none;
+    padding: 0;
+    margin-top:0;
+     /* Adding space at the top of the nav list */
+}
+
+/* Adjust the position of the nav links (nav icons and text) */
+.sidebar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    position: relative; /* This allows the pseudo-element to be positioned inside the nav link */
+}
+
+/* Line animation on hover */
+.sidebar-nav .nav-link::before {
+    content: ""; /* Creates the line */
+    position: absolute;
+    bottom: 0; /* Aligns the line to the bottom of the nav link */
+    left: 50%; /* Start from the center of the nav link */
+    width: 0%; /* Starts with no width */
+    height: 4px; /* Thickness of the line */
+    background-color: green; /* Color of the line */
+    transition: width 0.3s ease, left 0.3s ease; /* Smooth width expansion and left positioning */
+}
+
+.sidebar-nav .nav-link:hover::before {
+    width: 100%; /* On hover, the line stretches to full width */
+    left: 0; /* The line starts expanding from the left side */
+}
+
+.sidebar-nav .nav-link:hover {
+    color: white; /* Change text color on hover */
+}
+
+/* Hide both icons and text when collapsed */
+.sidebar.collapsed .nav-icon,
+.sidebar.collapsed .nav-label {
+    display: none;  /* Hide both the icons and the labels when collapsed */
+}
+
+/* Ensure icons are shown when collapsed (this is no longer needed since both are hidden in collapse) */
+.sidebar.collapsed .nav-icon {
+    display: none;  /* Hide the icon when collapsed */
+}
+
+/* Adjust the nav icon spacing and positioning */
+.nav-icon {
+    font-size: 24px; /* Adjust icon size */
+    margin-right: 15px; /* Ensure there is space between the icon and label */
+}
+
+/* Adjust body content when sidebar is open */
+body.sidebar-open {
+    margin-left: 250px;
+    transition: margin-left 0.4s ease;
+}
+
+/* Hamburger Menu - ensure visibility above the sidebar */
+#toggleBtn {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 30px;
+    color: white;
+    z-index: 1100; /* Ensure hamburger is above the sidebar */
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+/* Adjust space between hamburger icon and nav icons when collapsed */
+.sidebar.collapsed #toggleBtn {
+    left: 65px; /* Moves the hamburger icon away from the sidebar to create space */
+}
+
+/* Adjust nav icon spacing when collapsed */
+.sidebar.collapsed .nav-icon {
+    margin-left: 20px; /* Add space between icons */
+}
+
+/* Adjust space between hamburger and nav icons to avoid overlap */
+.sidebar.collapsed .sidebar-nav {
+    margin-top: 50px; /* Space below the hamburger icon */
+}
+
+/* Prevent overlap of hamburger button and nav icons */
+.sidebar.collapsed .sidebar-nav {
+    margin-left: 60px; /* Ensure nav icons are positioned properly */
+}
+
+
+
+
+
+/* Container for both boxes */
+.main-container {
+    display: flex;
+    justify-content: center; 
+    gap: 20px; 
+    padding: 5px;
+    flex-wrap: wrap; 
+    align-items: center;
+    margin-left: 3%;
+}
+
+/* Styling for the dashboard box (BSCS) */
+.dashboard-box {
+    width: 35%; 
+    max-width: 600px; 
+    height: 270px;
+    background-color: darkred; 
+    color: whitesmoke; 
+    padding: 20px; 
+    border-radius: 27px; 
+    box-shadow: 0 4px 8px rgba(1, 0, 0, 0.3); 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative; 
+    opacity: 0.9; 
+}
+
+/* Optional: Styling for the h3 tag */
+.dashboard-box h3 {
+    display: flex;
+    align-items: center; 
+    justify-content: center; 
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.dashboard-box img {
+    width: 50px; 
+    height: auto;
+    margin-right: 10px; 
+}
+
+/* Styling for the list of year links */
+.year-links {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.year-links li {
+    margin: 4px 0; 
+}
+
+.year-links a {
+    text-decoration: none; 
+    color: black; 
+    font-size: 12px; 
+    background-color: rgb(255, 255, 255); 
+    padding: 10px 12px;
+    border-radius: 15px;
+    display: block; 
+    transition: background-color 0.3s ease; 
+    margin: 10px 0; 
+    text-align: center; 
+    font-weight: bold; 
+}
+
+.year-links a:hover {
+    background-color: lightgray; 
+}
+
+/* Styling for the new dev box (BSIT) */
+.new-dev-box {
+    width: 35%; 
+    max-width: 600px; 
+    height: 270px; 
+    background-color: darkblue;
+    color: white;
+    padding: 20px; 
+    border-radius: 27px; 
+    box-shadow: 0 4px 8px rgba(1, 0, 0, 0.3); 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+    position: relative; 
+    opacity: 0.9; 
+}
+
+/* Optional: If you want to add a text shadow to make it stand out on the image */
+.new-dev-box h3 {
+    display: flex;
+    align-items: center; 
+    justify-content: center; /* Center text and logo horizontally */
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.new-dev-box h3 img {
+    width: 50px; /* Set size of the logo */
+    height: auto;
+    margin-right: 10px; /* Space between logo and text */
+}
+.certificate-container {
+    width: 80%;
+    margin-left: 9%;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    background-color: #f9f9f9;
+    text-align: center;
+     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+     margin-top: -2%;
+     
+}
+
+.certificate-container h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+    font-weight: bold;
+}
+
+.student-info-container i {
+    color: green; /* Kulay ng icons sa student info */
+    margin-right: 5px; /* Space sa pagitan ng icon at text */
+}
+
+/* Kulay ng icons sa loob ng table */
+table thead th i {
+    color: white !important; /* Tiyaking ito ang kulay ng icons sa header */
+}
+
+/* Optional: Kulay ng icons sa rows */
+table tbody td i {
+    color: green;
+    
+}
+
+.student-info-container {
+    margin-bottom: 20px;
+}
+
+.student-info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+    
+}
+
+.student-info-row div {
+    width: 48%;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+table thead th {
+    background-color: green; /* Set green background for thead th specifically */
+    color: white; /* Text color */
+    font-weight: bold; /* Retain bold styling */
+    
+}
+
+table th, table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+}
+
+table th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+}
+
+
+/* Responsive Design: Stack boxes on smaller screens */
+@media (max-width: 768px) {
+    .main-container {
+        flex-direction: column; /* Stack the boxes vertically on smaller screens */
+        align-items: center; /* Center the boxes vertically */
+    }
+
+    .dashboard-box, .new-dev-box {
+        width: 100%; /* Full width on small screens */
+    }
+}

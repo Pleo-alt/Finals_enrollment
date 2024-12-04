@@ -1,0 +1,178 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ course.course_name }}</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded">
+    <link rel="stylesheet" href="{% static 'css/section_styles.css' %}">
+</head>
+<style>
+    .main-header {
+        background: url("{% static 'img/background.jpg' %}");
+        background-size: cover;
+        background-position: center;
+    }
+</style>
+<body>
+    <!-- Top Navbar -->
+    <nav class="top-navbar">
+        <div class="navbar-title">
+            <a href="{% url 'dashboard' %}">
+            Cavite State University - Bacoor Campus
+            </a>
+        </div>
+
+        <button id="toggleBtn" class="toggleBtn">☰</button>
+
+        <ul class="top-nav-list">
+            <li><a href="{% url 'dashboard' %}">Enrollment</a></li>
+            <li><a href="#admission">Admission</a></li>
+        </ul>
+    </nav>
+
+    <header class="main-header">
+        <h1>{{ course.course_name }}</h1>
+        <h3>Sections</h3>
+    </header>
+    
+    <div class="table-container">
+        <div class="table-header">
+            <h2>{{ year.year_level }} Sections</h2>
+            <!-- Link to the add_section page -->
+            <a href="{% url 'add_section' course_id=course.id year_level_id=year.id %}">
+                <button class="add-student-btn">Add Section to {{ year.year_level }} </button>
+            </a>
+        </div>
+        <form method="get">
+            <div class="search-bar-container">
+                <label for="student-search" class="search-label">🔎</label>
+                <input
+                    type="text"
+                    id="student-search"
+                    name="search"
+                    class="search-bar"
+                    placeholder="Search by Section Name"
+                    value="{{ request.GET.search }}" 
+                />
+                <button class="search-btn" type="submit">Go</button>
+            </div>
+        </form>
+        <table class="enrollment-table">
+            <thead>
+                <tr>
+                    <th>Section Name</th>
+                    <th>Year Level</th>
+                    <th>Course Name</th>
+                    <th>Capacity</th>
+                    <th>Students</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for section in sections %}
+                    <tr>
+                        <td><a href="{% url 'edit_section' section.id %}">{{ section.section_name }}</a></td>  <!-- Displaying Section Name -->
+                        <td>{{ section.year_level.year_level }}</td>  <!-- Displaying Year Level -->
+                        <td>{{ section.course_name.course_name }}</td>  <!-- Displaying Course Name -->
+                        <td>{{ section.capacity }}</td>  <!-- Displaying Capacity -->
+                        <td> <a href="{% url 'view_students' section.course_name.course_name section.year_level.year_level section.section_name %}" class="view-students">View Students</a></td>
+                        
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5">No section/s available</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="header-logo">
+                <img src="{% static 'img/cvsulogo.png' %}" alt="CVSU Logo">
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <ul class="nav-list primary-nav">
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon material-symbols-rounded">group</span>
+                        <span class="nav-label">Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'dashboard' %}" class="nav-link">
+                        <span class="nav-icon material-symbols-rounded">dashboard</span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'sections' course_name=course.course_name year_level=year.year_level %}" class="nav-link">
+                        <span class="nav-icon material-symbols-rounded">view_list</span>
+                        <span class="nav-label">Sections</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon material-symbols-rounded">school</span>
+                        <span class="nav-label">Students</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon material-symbols-rounded">book</span>
+                        <span class="nav-label">Subjects</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Separate list for Logout -->
+            <ul class="nav-list secondary-nav">
+                <li class="nav-item">
+                    <a href="{% url 'logout' %}"  class="nav-link">
+                        <span class="nav-icon material-symbols-rounded">logout</span>
+                        <span class="nav-label">Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.getElementById('toggleBtn');
+            const sidebar = document.querySelector('.sidebar');
+            const body = document.body;
+
+            // Initially, the sidebar is expanded, and the body content adjusts.
+            sidebar.classList.remove('collapsed');  // Sidebar is expanded by default
+            body.classList.add('sidebar-open');     // Body content adjusts when sidebar is open
+
+            // Toggle the collapsed state on button click.
+            toggleBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('collapsed');  // Toggle collapse state
+                body.classList.toggle('sidebar-open');  // Adjust body when sidebar is open  
+            });
+            
+        });
+        function filterSections() {
+        const searchQuery = document.getElementById('student-search').value.toLowerCase();
+        const rows = document.querySelectorAll('.enrollment-table tbody tr');
+        
+        rows.forEach(row => {
+            const sectionName = row.querySelector('td:first-child').textContent.toLowerCase();
+            
+            // If the section name matches the search query, show the row, else hide it
+            if (sectionName.includes(searchQuery)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,241 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fredoka:wght@300..700&family=Lobster&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Pacifico&display=swap');
+
+/* Reset and Body Style */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  position: relative;
+  justify-content: center;
+  height: 100vh;
+  color: #fff;
+  font-family: 'Montserrat';
+}
+
+/* Main Container */
+.container {
+  position: relative;
+  z-index: 2;
+  color: white;
+  text-shadow: 1px 1px 2px black;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center content horizontally */
+  justify-content: left; /* Align content vertically */
+  width: 80%;
+  height: 80%;
+}
+
+/* Header Section */
+header {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  z-index: 3;
+}
+
+.name {
+  font-size: 40px;
+  font-weight: bold;
+  color: white;
+  position: absolute;
+  top: 30%;
+  left: 13%;
+  margin: 0;
+  line-height: 1.2;
+  z-index: 2;
+  letter-spacing: 3px;
+}
+
+h1::after {
+  content: "";
+  display: block;
+  width: 400px;
+  height: 5px;
+  background-color: white;
+  margin-top: 10px;
+  position: relative;
+  top: 20px;
+}
+
+/* Info and Login Section Container */
+.info-login-container {
+  position: absolute;
+  top: 50%;
+  right: 5%; /* Align to the right corner */
+  padding: 20px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
+  margin-top: 20px;
+}
+
+/* Logo */
+.logo {
+  height: 70px;
+  margin-right: 5px;
+  position: relative;
+  top: 80px;
+  left: 90px;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  font-style: italic;
+  position: relative;
+  top: 80px;
+  left: 70px;
+}
+
+/* Main Heading */
+main h1 {
+  font-size: 3rem;
+  margin: 20px 0;
+}
+
+/* Info Section */
+.info {
+  text-align: left;
+  line-height: 1.6;
+  flex: 3;
+}
+
+.info p {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  font-size: 20px;
+}
+
+.info i {
+  margin-right: 10px;
+  color: rgb(21, 255, 21);
+}
+
+
+/* Login Section */
+.login {
+  position: absolute;
+  left: 70%; /* Align near the left edge */
+  transform: translateY(-50%);
+  text-align: center;
+  color: white;
+  background: rgba(77, 76, 76, 0.4);
+  padding: 60px 40px;
+  border-radius: 60px;
+  z-index: 3;
+  width: 100%;
+  max-width: 400px;
+  min-height: 450px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.login form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.login-box {
+  text-align: center;
+  color: #fff;
+}
+
+.login h2 {
+  font-size: 35px;
+  font-family: 'Montserrat';
+  margin-bottom: 20px;
+}
+
+.login label {
+  display: block;
+  text-align: left;
+  font-size: 0.9em;
+  color: #ffffff;
+  margin-bottom: 8px;
+  font-size: 20px;
+  font-family: 'Montserrat';
+}
+
+.login input {
+  padding: 12px 20px;
+  border-radius: 100px;
+  border: 1px solid #ccc;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 1em;
+  outline: none;
+  height: 30px;
+  padding-right: 40px;
+}
+.login .eye-icon {
+  position: absolute;
+  right: 60px; /* Adjust position of the icon inside the input field */
+  top: 53%;
+  transform: translateY(10%);
+  cursor: pointer;
+  color: white;
+}
+
+.login .user-icon {
+  position: absolute;
+  left: 84%; /* Adjust position of the icon inside the input field */
+  top: 35%;
+  color: white;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #ffffff;
+}
+
+.login button {
+  font-family: 'Montserrat';
+  padding: 12px 20px;
+  background-color: darkgreen;
+  color: #fff;
+  font-size: 20px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+  height: 50px;
+}
+
+.login button:hover {
+  background-color: #00a000;
+  transform: .3s ease;
+}
+
+.e-link {
+  text-decoration: none;
+  color: white;
+}
+.forgot-password {
+  text-align: right;
+  margin-top: 5px;
+
+}
+
+.forgot-password-link {
+  color: white;
+  font-family: 'Montserrat';
+  text-decoration: none;
+  font-size: 1rem;
+}
+
+.forgot-password-link:hover {
+  text-decoration: underline;
+}
