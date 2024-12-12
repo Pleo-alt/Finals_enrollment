@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!-- assign_subjects.html -->
+<div class="form-container">
+    <h2>Assign Subjects to {{ student.first_name }} {{ student.last_name }}</h2>
+    
+    <form method="POST" action="{% url 'edit_student' student_id=student.student_id %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="subjects">Select Subjects:</label>
+            <select name="subjects" id="subjects" multiple required>
+                {% for subject in all_subjects %}
+                    <option value="{{ subject.id }}" {% if subject in student.subjects.all %}selected{% endif %}>
+                        {{ subject.subject_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn save-btn">Save</button>
+    
+        <!-- Hidden fields to pass other necessary student data -->
+        <input type="hidden" name="student_id" value="{{ student.student_id }}">
+        <input type="hidden" name="first_name" value="{{ student.first_name }}">
+        <input type="hidden" name="middle_name" value="{{ student.middle_name }}">
+        <input type="hidden" name="last_name" value="{{ student.last_name }}">
+        <input type="hidden" name="age" value="{{ student.age }}">
+        <input type="hidden" name="gender" value="{{ student.gender }}">
+        <!-- Add other fields as necessary -->
+    </form>
+    
+
+    
+
+    <div class="cancel-button">
+        <button type="button" class="btn cancel-btn" onclick="window.history.back();">Cancel</button>
+    </div>
+</div>
+</body>
+</html>

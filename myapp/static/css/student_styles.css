@@ -563,6 +563,76 @@ body.sidebar-open.sidebar-collapsed {
 .year-links a:hover {
     background-color: lightgray;
 }
+/* Pagination Container */
+.pagination {
+    display: flex;
+    
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/* Pagination Links */
+.pagination .step-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px; /* Increased gap between elements for better visibility */
+    
+}
+
+/* Pagination Button Style */
+.pagination a, .pagination span {
+    padding: 8px 16px;
+    border: 2px solid darkgreen;
+    background-color: #fff;
+    color: #333;  /* Darker color for better contrast */
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500; /* Slightly bolder text */
+    transition: background-color 0.2s ease, color 0.2s ease;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+}
+
+/* Hover Effect for Links */
+.pagination a:hover {
+    background-color: darkgreen;  /* Darker blue for better contrast */
+    color: white;  /* Text turns white for better contrast */
+}
+
+/* Active Page Style */
+.pagination .current {
+    background-color: rgb(13, 173, 13);
+    color: white;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 4px;
+}
+
+/* Disabled (First, Previous, Next, Last) Links */
+.pagination .disabled {
+    pointer-events: none;
+    opacity: 0.5;
+    background-color: #f0f0f0;
+    color:gray;
+}
+
+/* Focus States for Links */
+.pagination a:focus, .pagination span:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(12, 255, 4, 0.959);  /* Subtle blue glow */
+}
+
+/* Mobile-friendly Styles */
+@media (max-width: 768px) {
+    .pagination a, .pagination span {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+}
 
 /* Responsive Design */
 @media (max-width: 768px) {

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Student</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded">
-    <link rel="stylesheet" href="{% static 'css/add_student_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/add_subject_styles.css' %}">
     <style>
         .main-header{
             background: url("{% static 'img/background.jpg' %}");
@@ -95,128 +95,48 @@
 </aside>
  
 <div class="form-container">
-    <h2>Student Form</h2>
+    <h2>Subject Form</h2>
     <form method="POST">
         {% csrf_token %}
-
-        <!-- First Name -->
         <div class="form-group">
-            <label for="firstName">First Name:</label>
-            <input type="text" id="firstName" name="firstName" required>
+            <label for="subject_code">Subject Code</label>
+            <input type="text" id="subject_code" name="subject_code" class="form-control" required>
         </div>
-
-        <!-- Middle Name -->
+    
         <div class="form-group">
-            <label for="middleName">Middle Name:</label>
-            <input type="text" id="middleName" name="middleName">
+            <label for="subject_name">Subject Name</label>
+            <input type="text" id="subject_name" name="subject_name" class="form-control" required>
         </div>
-
-        <!-- Last Name -->
+    
         <div class="form-group">
-            <label for="lastName">Last Name:</label>
-            <input type="text" id="lastName" name="lastName" required>
+            <label for="subject_unit">Subject Unit</label>
+            <input type="number" id="subject_unit" name="subject_unit" class="form-control" required>
         </div>
-
-        <!-- Age -->
+    
         <div class="form-group">
-            <label for="age">Age:</label>
-            <input type="number" name="age" value="{{ student.age }}" placeholder="Age" required min="0">
+            <label for="section_time">Section Time</label>
+            <input type="text" id="section_time" name="section_time" class="form-control" value="TBA">
         </div>
-        <!-- Gender -->
-<div class="form-group">
-    <label for="gender">Gender:</label>
-    <select id="gender" name="gender" required>
-        <option value="Male" {% if student.gender == 'Male' %}selected{% endif %}>Male</option>
-        <option value="Female" {% if student.gender == 'Female' %}selected{% endif %}>Female</option>
-    </select>
-</div>
-
-        <!-- Course -->
-<div class="form-group">
-    <label for="course">Course:</label>
-    <input type="text" id="course" name="course" value="{{ course.course_name }}" readonly required>
-</div>
-
-
-        <!-- Year Level -->
-<div class="form-group">
-    <label for="yearLevel">Year Level:</label>
-    <input type="text" id="yearLevel" name="yearLevel" value="{{ year_level.year_level }}" readonly required>
-</div>
-
-        <!-- Display the selected Section -->
-<div class="form-group">
-    <label for="section">Section:</label>
-    <input type="text" id="section" name="section" value="{{ selected_section.section_name }}" readonly>
-</div>
-
-        <!-- Semester -->
+    
         <div class="form-group">
-            <label for="semester">Semester:</label>
-            <select id="semester" name="semester" required>
-                {% for semester in semesters %}
-                    <option value="{{ semester.id }}" {% if semester.id == student.semester.id %}selected{% endif %}>
-                        {{ semester.semester_name }}
-                    </option>
-                {% endfor %}
-            </select>
+            <label for="section_day">Section Day</label>
+            <input type="text" id="section_day" name="section_day" class="form-control" value="TBA">
         </div>
-        <!-- Birthday Field -->
-<div class="form-group">
-    <label for="birthday">Birthday:</label>
-    <!-- Input for selecting the student's birthday -->
-    <input type="date" id="birthday" name="birthday" placeholder="Select Birthday">
-</div>
-
-<!-- Address Field -->
-<div class="form-group">
-    <label for="address">Address:</label>
-    <!-- Textarea for entering the student's address -->
-    <textarea id="address" name="address" placeholder="Enter Address"></textarea>
-</div>
-
-<!-- Email Address Field -->
-<div class="form-group">
-    <label for="email_address">Email Address:</label>
-    <!-- Input for entering the student's email address -->
-    <input type="email" id="email_address" name="email_address" placeholder="Enter Email Address">
-</div>
-
-<!-- School Year Field -->
-<div class="form-group">
-    <label for="school_year">School Year:</label>
-    <!-- Input for entering the academic year (e.g., 2023-2024) -->
-    <input type="text" id="school_year" name="school_year" placeholder="e.g., 2023-2024">
-</div>
- <!-- Status -->
- <div class="form-group">
-    <label for="status">Status:</label>
-    <select id="status" name="status" required>
-        <option value="Regular">Regular</option>
-        <option value="Irregular">Irregular</option>
-    </select>
-</div>
-
+    
+        <div class="form-group">
+            <label for="section_room">Section Room</label>
+            <input type="text" id="section_room" name="section_room" class="form-control" value="TBA">
+        </div>
+    
        
-
-        <!-- Student ID -->
-        <div class="form-group">
-            <label for="student_id">Student ID:</label>
-            <input type="text" id="student_id" name="student_id" value="{{ student.student_id|default:'' }}" 
-                   placeholder="{% if student.student_id %}Manual input for old students{% else %}Auto-generated for new students{% endif %}" 
-                   {% if student.student_id %} readonly {% endif %}>
+            <button type="submit" class="btn save-btn">Save</button>
+            <button type="button" class="btn cancel-btn" onclick="window.history.back();">Cancel</button>
         </div>
-
-        {% if error_message %}
-        <div class="error-message" style="color: red;">
-            <strong>{{ error_message }}</strong>
-        </div>
-        {% endif %}
-        
-        <button type="submit" class="btn save-btn">Save</button>
-        <button type="button" class="btn cancel-btn" id="cancelButton" data-url="{% url 'view_students' course_name=course.course_name year_level=year_level.year_level section_name=selected_section.section_name %}">Cancel</button>
     </form>
+    
+    
 </div>
+    
     
     
     
@@ -288,9 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
         updateDropdowns(courseSelect.value, yearLevelSelect.value);
     });
   
-    document.getElementById('cancelButton').addEventListener('click', function() {
-        window.location.href = this.getAttribute('data-url');
-    });
+
 </script>
 </body>
 </html>

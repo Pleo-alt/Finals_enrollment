@@ -98,45 +98,49 @@
     <h2>Subject Form</h2>
     <form method="POST">
         {% csrf_token %}
+        
+        {% if error_message %}
+            <div class="alert alert-danger">{{ error_message }}</div>
+        {% endif %}
+        
         <div class="form-group">
             <label for="subject_code">Subject Code</label>
-            <input type="text" id="subject_code" name="subject_code" class="form-control" required>
+            <input type="text" id="subject_code" name="subject_code" class="form-control" value="{{ request.POST.subject_code }}" required>
         </div>
     
         <div class="form-group">
             <label for="subject_name">Subject Name</label>
-            <input type="text" id="subject_name" name="subject_name" class="form-control" required>
+            <input type="text" id="subject_name" name="subject_name" class="form-control" value="{{ request.POST.subject_name }}" required>
         </div>
     
         <div class="form-group">
             <label for="subject_unit">Subject Unit</label>
-            <input type="number" id="subject_unit" name="subject_unit" class="form-control" required>
+            <input type="number" id="subject_unit" name="subject_unit" class="form-control" value="{{ request.POST.subject_unit }}" required>
         </div>
     
         <div class="form-group">
             <label for="section_time">Section Time</label>
-            <input type="text" id="section_time" name="section_time" class="form-control" value="TBA">
+            <input type="text" id="section_time" name="section_time" class="form-control" value="{{ request.POST.section_time|default:"TBA" }}">
         </div>
     
         <div class="form-group">
             <label for="section_day">Section Day</label>
-            <input type="text" id="section_day" name="section_day" class="form-control" value="TBA">
+            <input type="text" id="section_day" name="section_day" class="form-control" value="{{ request.POST.section_day|default:"TBA" }}">
         </div>
     
         <div class="form-group">
             <label for="section_room">Section Room</label>
-            <input type="text" id="section_room" name="section_room" class="form-control" value="TBA">
+            <input type="text" id="section_room" name="section_room" class="form-control" value="{{ request.POST.section_room|default:"TBA" }}">
         </div>
     
-       
-            <button type="submit" class="btn save-btn">Save</button>
-            <button type="button" class="btn cancel-btn" onclick="window.history.back();">Cancel</button>
-        </div>
+        <button type="submit" class="btn save-btn">Save</button>
+        
+        <button type="button" class="btn cancel-btn" id="cancelButton"
+        data-url="{% url 'view_student_subjects' course_name=course.course_name year_level=year_level.year_level section_name=student.section_name.section_name student_id=student.id %}">
+            Cancel
+        </button>
     </form>
-    
-    
 </div>
-    
     
     
     
@@ -207,7 +211,10 @@ document.addEventListener('DOMContentLoaded', function () {
         // Initial call to populate sections and semesters based on current selection
         updateDropdowns(courseSelect.value, yearLevelSelect.value);
     });
-  
+    document.getElementById("cancelButton").addEventListener("click", function() {
+        var url = this.getAttribute("data-url");
+        window.location.href = url;
+    });
 
 </script>
 </body>

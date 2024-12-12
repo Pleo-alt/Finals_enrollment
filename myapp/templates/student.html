@@ -40,10 +40,10 @@
 <div class="table-container">
     <div class="table-header">
         
-        <h2>{{ section.section_name }}</h2>
-        <a href="{% url 'add_student' course_id=course.id year_level=year.year_level %}">
-        <button class="add-student-btn">Add Student</button>
-    </a>
+        <h2>{{ section.section_name }} (Total Students: {{ students_count }})</h2>
+        <a href="{% url 'add_student' course_id=course.id year_level=year.year_level section_name=section.section_name %}">
+            <button class="add-student-btn">Add Student to {{ section.section_name }}</button>
+        </a>
     </div>
     <form method="get">
         <div class="search-bar-container">
@@ -75,6 +75,7 @@
                 <th>Semester</th>
                 <th>Section</th>
                 <th>Age</th>
+                <th>Gender</th>
                 <th>Enrollment Date</th>
                 <th>Status</th>
                 <th>Subjects</th>
@@ -83,7 +84,7 @@
         <tbody>
             {% for student in students %}
             <tr>
-                <td><a href="{% url 'edit_student' student.id %}">{{ student.student_id }}</a></td>
+                <td><a href="{% url 'edit_student' student_id=student.student_id %}">{{ student.student_id }}</a></td>
                 <td>{{ student.first_name }}</td>
                 <td>{{ student.middle_name|default:'' }}</td>
                 <td>{{ student.last_name }}</td>
@@ -91,6 +92,7 @@
                 <td>{{ student.semester.semester_name }}</td>
                 <td>{{ student.section_name.section_name }}</td>
                 <td>{{ student.age }}</td>
+                <td>{{ student.get_gender_display }}</td>
                 <td>{{ student.enrollment_date }}</td>
                 <td>{{ student.status|default:"Regular" }}</td>
                 <td>
@@ -104,8 +106,34 @@
             </tr>
             {% endfor %}
         </tbody>
-        
     </table>
+   
+    <div class="pagination">
+        <span class="step-links">
+            {% if students.has_previous %}
+                <a href="?page=1&search={{ search_query }}">First</a>
+                <a href="?page={{ students.previous_page_number }}&search={{ search_query }}">Previous</a>
+            {% else %}
+                <span class="disabled">First</span>
+                <span class="disabled">Previous</span>
+            {% endif %}
+            
+            <!-- Display the current page number -->
+            <span class="current">
+                Page {{ students.number }} of {{ students.paginator.num_pages }}
+            </span>
+            
+            {% if students.has_next %}
+                <a href="?page={{ students.next_page_number }}&search={{ search_query }}">Next</a>
+                <a href="?page={{ students.paginator.num_pages }}&search={{ search_query }}">Last</a>
+            {% else %}
+                <span class="disabled">Next</span>
+                <span class="disabled">Last</span>
+            {% endif %}
+        </span>
+    </div>
+    
+    
 </div>
 
 <!-- Sidebar -->

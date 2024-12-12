@@ -10,7 +10,7 @@ urlpatterns = [
     path('logout/', views.logout, name='logout'),
     
     # Student management
-    path('add_student/<int:course_id>/<str:year_level>/', views.add_student, name='add_student'),
+    path('add_student/<int:course_id>/<str:year_level>/<str:section_name>/', views.add_student, name='add_student'),
     path('edit_student/<int:student_id>/', views.edit_student, name='edit_student'),
     path('delete_student/<int:student_id>/', views.delete_student, name='delete_student'),
     path('get_year_levels/', views.get_year_levels, name='get_year_levels'),
@@ -22,11 +22,13 @@ urlpatterns = [
     # Course, Yearlevel, Section, and Student management
     path('<str:course_name>/<str:year_level>/', views.view_section, name='sections'),
     path('view_students/<str:course_name>/<str:year_level>/<str:section_name>/', views.view_students, name='view_students'),
+
     
     # Student subjects and instructor views
     path('view_student_subjects/<str:course_name>/<str:year_level>/<str:section_name>/<int:student_id>/', views.view_student_subjects, name='view_student_subjects'),
     path('<int:course_id>/<int:year_level_id>/student/<int:student_id>/add-subject/', views.add_subject, name='add_subject'),
-    path('edit_subject/<str:course_name>/<str:year_level>/<str:subject_code>/', views.edit_subject, name='edit_subject'),
+    path('subject/<int:subject_id>/edit/', views.edit_subject, name='edit_subject'),
+    path('subject/<int:subject_id>/delete/', views.delete_subject, name='delete_subject'),
     path('<str:course_name>/year/<str:year_level>/section/<str:section_name>/student/<int:student_id>/subject/<str:subject_code>/instructor/', views.view_instructor, name='view_instructor'),
 ]
 

@@ -34,7 +34,7 @@
 </nav>
 <header class="main-header">
     <h1>Subjects</h1>
-    <h3>{{ course.course_name }} - {{ year.year_level }} </h3>
+    <h3>{{ course.course_name }} - {{ section.section_name }} </h3>
 </header>
 
 <div class="table-container">
@@ -73,7 +73,7 @@
         <tbody>
             {% for subject in subjects %}
             <tr>
-                <td>{{ subject.subject_code }}</td>
+                <td><a href="{% url 'edit_subject' subject_id=subject.id %}">{{ subject.subject_code }}</a></td>
                 <td>{{ subject.subject_name }}</td>
                 <td>{{ subject.subject_unit }}</td>
                 <td>{{ subject.section_time }}</td>

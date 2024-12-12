@@ -24,10 +24,6 @@ body {
     font-size: 20px;
     font-weight: bold;
 }
-.top-navbar .navbar-title a {
-    text-decoration: none; /* Removes the default underline from the link */
-    color: white; /* Ensures the link text color remains white */
-}
 
 .top-navbar .top-nav-list {
     list-style: none;
@@ -225,13 +221,7 @@ h2 {
     opacity: 1 !important;
 }
 
-.comscie-box:hover .header-logo img,
-.IT-box:hover .header-logo img,
-.comscie-box:hover h2,
-.IT-box:hover h2 {
-    opacity: 0;
-    visibility: hidden;
-}
+
 
 /* Sidebar */
 .sidebar {
@@ -448,7 +438,7 @@ h2 {
     background-color: green;
     color: white;
     padding: 15px;
-    text-align: left;
+    text-align: center;
     margin: 0;
     border-radius: 10px 10px 0 0;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -557,6 +547,7 @@ input, select {
 .btn:active {
     transform: scale(0.98); /* Slightly shrink when clicked */
 }
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .main-container {
@@ -567,45 +558,4 @@ input, select {
     .dashboard-box, .new-dev-box {
         width: 100%;
     }
-}
-.subject-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 80%;
-    margin: auto;
-}
-
-.subject-table {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-}
-
-.left-column, .right-column {
-    width: 45%;
-}
-
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-ul li {
-    margin: 5px 0;
-}
-
-.btn.enroll-btn {
-    margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.btn.enroll-btn:hover {
-    background-color: #0056b3;
 }

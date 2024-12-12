@@ -5,7 +5,10 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import Course, Yearlevel, Section, Student, Subject, Instructor,Semester
 from django.db.models import Q
-
+from django.utils import timezone 
+from django.db import IntegrityError
+from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
 
 def login(request):
     # Redirect authenticated users to the appropriate page
@@ -96,6 +99,7 @@ def view_section(request, course_name, year_level):
     return render(request, 'section.html', {'course': course, 'year': year, 'sections': sections})
 
 
+
 def view_students(request, course_name, year_level, section_name):
     # Get the Course, Yearlevel, and Section objects
     course = get_object_or_404(Course, course_name=course_name)
@@ -114,27 +118,36 @@ def view_students(request, course_name, year_level, section_name):
     
     # If there's a search query, filter the students further
     if search_query:
-        # Split the search query into individual words (in case it's a full name)
+        # Split the search query into individual words (in case it's a full name or ID)
         search_parts = search_query.split()
         
         # Create a Q object for the filter
         filter_query = Q()
         
-        # For each part of the name (first, middle, last), search across all name fields
+        # For each part of the query, search across all relevant fields
         for part in search_parts:
-            filter_query |= Q(first_name__icontains=part) | Q(middle_name__icontains=part) | Q(last_name__icontains=part)
+            filter_query |= Q(first_name__icontains=part) | Q(middle_name__icontains=part) | Q(last_name__icontains=part) | Q(student_id__icontains=part) | Q(status__icontains=part)
         
         # Apply the filter to the students queryset
         students = students.filter(filter_query)
 
+    # Get the total count of students (before pagination)
+    students_count = students.count()
+
+    # Pagination: show 5 students per page
+    paginator = Paginator(students, 10)  # Show 5 students per page
+    page_number = request.GET.get('page')  # Get the current page number from the URL
+    page_obj = paginator.get_page(page_number)
+
     context = {
+        'students': page_obj,  # Pass the paginated students
+        'students_count': students_count,  # Pass the total number of students
         'course': course,
         'year': year,
         'section': section,
-        'students': students,
         'search_query': search_query,  # Pass the search query to retain it in the search bar
     }
-    
+
     return render(request, 'student.html', context)
 def view_student_subjects(request, course_name, year_level, section_name, student_id):
     # Fetching the course, year_level, section, and student objects
@@ -199,128 +212,123 @@ def view_instructor(request, course_name, year_level, section_name, student_id, 
     return render(request, 'instructor.html', context)
 
 
-def add_student(request, course_id, year_level):
-    # Retrieve the course and year_level from the database using the URL parameters
+def add_student(request, course_id, year_level, section_name):
     course = get_object_or_404(Course, id=course_id)
     year_level_obj = get_object_or_404(Yearlevel, year_level=year_level)
 
-    # Ensure that the selected course is associated with the selected year level
     if course not in year_level_obj.courses.all():
         raise Http404("Invalid course and year level combination.")
 
-    # Fetch sections based on the selected course and year level
-    sections = Section.objects.filter(course_name=course, year_level=year_level_obj)
+    # Fetch the specific section based on the course and year level
+    selected_section = get_object_or_404(Section, course_name=course, year_level=year_level_obj, section_name=section_name)
 
-    # If the form is submitted (POST request)
+    # Handle form submission
+    error_message = None
     if request.method == 'POST':
+        # Extract data from the form
         first_name = request.POST.get('firstName')
         middle_name = request.POST.get('middleName')
         last_name = request.POST.get('lastName')
         age = request.POST.get('age')
-        semester_id = request.POST.get('semester')  # Get the selected semester ID
-        section_name = request.POST.get('section')
+        semester_id = request.POST.get('semester')
         status = request.POST.get('status')
-        subject_ids = request.POST.getlist('subjects')
+        student_id = request.POST.get('student_id')
+        gender = request.POST.get('gender')  # Get gender
 
-        # Get the selected semester and section
-        semester = get_object_or_404(Semester, id=semester_id)  # Fetch by ID, not name
-        section = get_object_or_404(Section, section_name=section_name, course_name=course, year_level=year_level_obj)
+        # If no student ID is provided, auto-generate one
+        if not student_id:
+            student_id = generate_student_id(course, year_level_obj)
 
-        # Create a new student instance
-        student = Student.objects.create(
-            first_name=first_name,
-            middle_name=middle_name,
-            last_name=last_name,
-            age=age,
-            course_name=course,
-            year_level=year_level_obj,
-            semester=semester,
-            section_name=section,
-            status=status
-        )
+        # Check if student ID already exists
+        if Student.objects.filter(student_id=student_id).exists():
+            error_message = "The Student ID already exists."
 
-        # Add subjects to the student
-        for subject_id in subject_ids:
-            subject = get_object_or_404(Subject, id=subject_id)
-            student.subjects.add(subject)
+        if not error_message:
+            semester = get_object_or_404(Semester, id=semester_id)
 
-        # Redirect to the view_students page after saving
-        return redirect('view_students', course_name=course.course_name, year_level=year_level_obj.year_level, section_name=section.section_name)
+            # Create the student instance
+            student = Student(
+                first_name=first_name,
+                middle_name=middle_name,
+                last_name=last_name,
+                age=age,
+                course_name=course,
+                year_level=year_level_obj,
+                semester=semester,
+                section_name=selected_section,  # Use the selected section
+                status=status,
+                student_id=student_id,
+                gender=gender,  # Set gender
+            )
 
-    # Fetch all semesters and subjects for the form
+            try:
+                # Save the student to the database
+                student.save()
+
+
+                return redirect('view_students', course_name=course.course_name, year_level=year_level_obj.year_level, section_name=selected_section.section_name)
+            except IntegrityError:
+                error_message = "Student ID already exist."
+
+    # Fetch semesters and subjects for the form
     semesters = Semester.objects.all()
     subjects = Subject.objects.all()
 
-    # Context data to pass to the template
     context = {
         'course': course,
         'year_level': year_level_obj,
-        'sections': sections,
+        'selected_section': selected_section,  # Ensure you're passing the selected section
         'semesters': semesters,
         'subjects': subjects,
+        'error_message': error_message,
+        'student': Student(),  # Empty student object to render the form
     }
 
     return render(request, 'add_student.html', context)
 
 
+
+def generate_student_id(course, year_level):
+    """Generate student ID for new students."""
+    year = timezone.now().year
+    last_student = Student.objects.filter(student_id__startswith=str(year)).order_by('-student_id').first()
+    next_id = 1  # Default to the first student ID of the year
+
+    if last_student:
+        last_id = int(last_student.student_id[4:])  # Extract the last 5 digits
+        next_id = last_id + 1  # Increment the ID
+
+    return f"{year}{next_id:05}"
+
+
+
+
+
 def edit_student(request, student_id):
     # Fetch the student object by its ID
-    student = get_object_or_404(Student, id=student_id)
-    course = student.course_name
-    year_level_obj = student.year_level
-    section = student.section_name
+    student = get_object_or_404(Student, student_id=student_id)
 
-    # Fetch all courses, year levels, semesters, and subjects
+    # Fetch all necessary data
     courses = Course.objects.all()
     year_levels = Yearlevel.objects.all()
+    sections = Section.objects.filter(course_name=student.course_name, year_level=student.year_level)
     semesters = Semester.objects.all()
     subjects = Subject.objects.all()
 
-    # Filter the sections based on the student's course and year level
-    sections = Section.objects.filter(course_name=course, year_level=year_level_obj)
-
     if request.method == "POST":
-        # Get form data
+        # Get form data (including student_id)
+        student_id = request.POST.get("student_id")
         first_name = request.POST.get("firstName")
-        middle_name = request.POST.get("middleName") or None  # Allow empty middle name
+        middle_name = request.POST.get("middleName", "")  # Allow empty middle name
         last_name = request.POST.get("lastName")
         age = request.POST.get("age")
         semester_id = request.POST.get("semester")
         section_id = request.POST.get("section")
         status = request.POST.get("status")
+        gender = request.POST.get("gender")  # Get gender
         subject_ids = request.POST.getlist("subjects")
         course_id = request.POST.get("course")
         year_level_id = request.POST.get("yearLevel")
-
-        # Validation for age
-        if not age:
-            messages.error(request, "Age is required.")
-            return render(
-                request, "edit_student.html", {
-                    "student": student,
-                    "courses": courses,
-                    "year_levels": year_levels,
-                    "sections": sections,
-                    "semesters": semesters,
-                    "subjects": subjects,
-                }
-            )
-        try:
-            age = int(age)
-            if age <= 0:
-                raise ValueError("Age must be a positive number.")
-        except ValueError as e:
-            messages.error(request, str(e))
-            return render(
-                request, "edit_student.html", {
-                    "student": student,
-                    "courses": courses,
-                    "year_levels": year_levels,
-                    "sections": sections,
-                    "semesters": semesters,
-                    "subjects": subjects,
-                }
-            )
 
         # Fetch related objects
         course = get_object_or_404(Course, id=course_id)
@@ -328,9 +336,10 @@ def edit_student(request, student_id):
         semester = get_object_or_404(Semester, id=semester_id)
         section = get_object_or_404(Section, id=section_id, course_name=course, year_level=year_level_obj)
 
-        # Update student information
+        # Update student information, including the student_id
+        student.student_id = student_id  # Assign updated student_id
         student.first_name = first_name
-        student.middle_name = middle_name  # Now allows None if middle name is empty
+        student.middle_name = middle_name
         student.last_name = last_name
         student.age = age
         student.course_name = course
@@ -338,24 +347,44 @@ def edit_student(request, student_id):
         student.semester = semester
         student.section_name = section
         student.status = status
-        student.save()
+        student.gender = gender  # Update gender
 
-        # Update subjects (Many-to-Many relationship)
-        student.subjects.set(subject_ids)
+        # Handle potential IntegrityError if student_id is not unique
+        try:
+            # Save the changes to the student
+            student.save()
 
-        # Redirect to the student list or detail view
-        return redirect("view_students", course_name=course.course_name, year_level=year_level_obj.year_level, section_name=section.section_name)
+            # Update subjects (Many-to-Many relationship)
+            student.subjects.set(subject_ids)
+
+            # Redirect to the student list or detail view
+            return redirect("view_students", course_name=course.course_name, year_level=year_level_obj.year_level, section_name=section.section_name)
+
+        except IntegrityError:
+            # Catch the IntegrityError if student_id is already taken and display an error message
+            context = {
+                'student': student,
+                "courses": courses,
+                "year_levels": year_levels,
+                "sections": sections,
+                "semesters": semesters,
+                "subjects": subjects,
+                'error': 'This Student ID is already taken. Please choose a different one.',
+            }
+            return render(request, "edit_student.html", context)
 
     # Prepare context data for the form
     context = {
-        "student": student,
+        'student': student,
         "courses": courses,
         "year_levels": year_levels,
         "sections": sections,
         "semesters": semesters,
         "subjects": subjects,
     }
+
     return render(request, "edit_student.html", context)
+
 def delete_student(request, student_id):
     # Fetch the student record by its ID
     student = get_object_or_404(Student, id=student_id)
@@ -498,14 +527,37 @@ def delete_section(request, section_id):
     # Redirect to the view_section page with course_name and year_level
     return redirect('sections', course_name=course_name, year_level=year_level)
 
+def assign_subjects(request, student_id):
+    # Get the student and all available subjects
+    student = get_object_or_404(Student, student_id=student_id) 
+    all_subjects = Subject.objects.all()
+
+    if request.method == "POST":
+        # Get the selected subjects from the form
+        subject_ids = request.POST.getlist("subjects")
+        # Assign selected subjects to the student
+        student.subjects.set(subject_ids)
+        student.save()  # Save the updated student data
+
+        # Redirect back to the edit_student page with the correct student ID
+        return redirect('edit_student', student_id=student.id)
+
+    context = {
+        'student': student,
+        'all_subjects': all_subjects,
+    }
+
+    return render(request, 'assign_subject.html', context)
+
 def add_subject(request, course_id, year_level_id, student_id):
-    # Get the course, year level, and student objects
     course = get_object_or_404(Course, id=course_id)
     year_level = get_object_or_404(Yearlevel, id=year_level_id)
     student = get_object_or_404(Student, id=student_id, course_name=course, year_level=year_level)
 
+    error_message = None  # Variable to hold the error message
+
     if request.method == 'POST':
-        # Get selected subject from the form
+        # Get selected subject details from the form
         subject_code = request.POST.get('subject_code')
         subject_name = request.POST.get('subject_name')
         subject_unit = request.POST.get('subject_unit')
@@ -513,52 +565,98 @@ def add_subject(request, course_id, year_level_id, student_id):
         section_day = request.POST.get('section_day', 'TBA')
         section_room = request.POST.get('section_room', 'TBA')
 
-        # Create the new subject object
-        new_subject = Subject(
-            course_name=course,
-            year_level=year_level,
-            subject_code=subject_code,
-            subject_name=subject_name,
-            subject_unit=subject_unit,
-            section_time=section_time,
-            section_day=section_day,
-            section_room=section_room
-        )
-        new_subject.save()
+        # Check if the subject already exists
+        if Subject.objects.filter(subject_code=subject_code, course_name=course, year_level=year_level).exists():
+            error_message = "The subject code already exists for this course and year level."
+        else:
+            # If no error, proceed to create or update the subject
+            subject = Subject(
+                subject_code=subject_code,
+                subject_name=subject_name,
+                subject_unit=subject_unit,
+                section_time=section_time,
+                section_day=section_day,
+                section_room=section_room,
+                course_name=course,
+                year_level=year_level,
+            )
 
-        # Add subject to student
-        student.subjects.add(new_subject)
-
-        # Redirect back to the student subject page or any other desired page
-        return redirect('view_student_subjects', 
-                        course_name=course.course_name, 
-                        year_level=year_level.year_level,
-                        section_name=student.section_name.section_name,
-                        student_id=student.id)
+            try:
+                subject.save()  # Save the new subject
+                student.subjects.add(subject)  # Add the subject to the student's subjects
+                return redirect('view_student_subjects', course_name=course.course_name, year_level=year_level.year_level, section_name=student.section_name.section_name, student_id=student.id)
+            except IntegrityError:
+                error_message = "An error occurred while saving the subject."  # Handle any database errors (e.g. unique constraints)
 
     return render(request, 'add_subject.html', {
         'course': course,
         'year_level': year_level,
-        'student': student
+        'student': student,
+        'error_message': error_message,  # Pass error message to the template
     })
 
 def edit_subject(request, subject_id):
+    # Fetch the subject
     subject = get_object_or_404(Subject, id=subject_id)
 
-    if request.method == 'POST':
-        # Handle the form submission, update the subject
-        subject.subject_code = request.POST.get('subject_code')
-        subject.subject_name = request.POST.get('subject_name')
-        subject.subject_unit = request.POST.get('subject_unit')
-        subject.section_time = request.POST.get('section_time')
-        subject.section_day = request.POST.get('section_day')
-        subject.section_room = request.POST.get('section_room')
-        subject.save()
+    # Get the first associated student
+    student = subject.students.first()  # Adjust this based on the correct related_name
+    if not student:
+        return render(request, 'edit_subject.html', {
+            'subject': subject,
+            'error': 'No student is associated with this subject.'
+        })
 
-        return redirect('view_student_subjects', 
-                        course_name=subject.course_name.course_name, 
-                        year_level=subject.year_level.year_level, 
-                        section_name=subject.section_name.section_name, 
-                        student_id=subject.student.id)
+    # Get associated course, year level, and section
+    course = subject.course_name
+    year_level = subject.year_level
+    section = student.section_name
+
+    if request.method == 'POST':
+        # Update subject fields
+        subject.subject_code = request.POST.get('subject_code', '').strip()
+        subject.subject_name = request.POST.get('subject_name', '').strip()
+        subject.subject_unit = request.POST.get('subject_unit', '').strip()
+        subject.section_time = request.POST.get('section_time', '').strip() or 'TBA'
+        subject.section_day = request.POST.get('section_day', '').strip() or 'TBA'
+        subject.section_room = request.POST.get('section_room', '').strip() or 'TBA'
+
+        try:
+            subject.save()
+            # Redirect to view_student_subjects
+            return redirect('view_student_subjects',
+                            course_name=course.course_name,
+                            year_level=year_level.year_level,
+                            section_name=section.section_name,
+                            student_id=student.id)
+        except ValidationError as e:
+            return render(request, 'edit_subject.html', {'subject': subject, 'error': str(e)})
 
     return render(request, 'edit_subject.html', {'subject': subject})
+
+def delete_subject(request, subject_id):
+    # Fetch the subject object by its ID
+    subject = get_object_or_404(Subject, id=subject_id)
+
+    # Get the related course and year level
+    course_name = subject.course_name.course_name
+    year_level = subject.year_level.year_level
+
+    # Fetch the first student associated with this subject
+    first_student = subject.students.first()
+
+    # Check if there are students associated with the subject
+    if first_student:
+        # Delete the subject
+        subject.delete()
+
+        # Redirect to the first student's subject page
+        return redirect('view_student_subjects', 
+                        course_name=course_name, 
+                        year_level=year_level,
+                        section_name=first_student.section_name.section_name,  # Assuming section_name is in the student model
+                        student_id=first_student.id)
+    else:
+        # If no students are associated, just delete the subject and redirect
+        subject.delete()
+        return redirect('subject_list')  # Redirect to subject list or wherever you want
