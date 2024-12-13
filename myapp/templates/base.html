@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Enrollment System{% endblock %}</title>
+    <style>
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: url("{% static 'img/background.jpg' %}") no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+        }
+
+        header {
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        main {
+        margin: 2rem auto;
+        max-width: 500px;
+        padding: 1rem;
+        background: rgba(229, 255, 221, 0.8); /* Semi-transparent white */
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Optionally adjust text and input colors for visibility */
+        input {
+        background-color: #f8f9fa;
+        border: 1px solid #ccc;
+        }
+
+        label, a {
+        color: #333;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #777;
+        }
+
+        a {
+            color: #28a745;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Forgot Password</h1>
+    </header>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
+</html>

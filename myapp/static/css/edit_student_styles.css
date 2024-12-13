@@ -1,0 +1,537 @@
+/* General Reset */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    padding: 0;
+}
+
+/* Top Navbar */
+.top-navbar {
+    background-color: darkgreen;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 20px;
+    color: white;
+    position: relative;
+}
+
+.top-navbar .navbar-title {
+    position: absolute;
+    left: 20%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.top-navbar .top-nav-list {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+    margin-left: auto;
+}
+
+.top-navbar .top-nav-list li {
+    margin-right: 20px;
+}
+
+.top-navbar .top-nav-list li a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+
+.top-navbar .top-nav-list li a:hover {
+    text-decoration: underline;
+}
+
+/* Main Header */
+.main-header {
+    text-align: center;
+    background: url('/images/background.jpg');
+    background-size: cover;
+    padding: 60px 20px;
+    margin-bottom: 40px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    color: white;
+}
+
+.main-header h1 {
+    font-size: 40px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.main-header h3 {
+    font-size: 21px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+    color: #f5f5f5;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 0;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.main-header:after {
+    content: '';
+    display: block;
+    width: 150px;
+    height: 4px;
+    background-color: #fff;
+    border-radius: 50px;
+    margin-left: 50px;
+}
+
+/* Main Container */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin-top: 2%;
+    margin-bottom: 2%;
+    margin-left: 3%;
+}
+
+
+
+/* Header Logo */
+.header-logo img {
+    width: 130px;
+    height: auto;
+    margin-top: 30px;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Title (course name) */
+h2 {
+    margin: 15px 0;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: opacity 0.3s ease;
+}
+
+/* Year List (hidden initially) */
+.year-list {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 15px;
+    opacity: 0;
+    position: absolute;
+    bottom: -60px;
+    left: 0;
+    right: 0;
+    transition: bottom 0.3s ease, opacity 0.3s ease;
+    border-radius: 10px;
+}
+
+
+.year-list li {
+    color: white;
+    margin: 5px 0;
+    font-size: 18px;
+    font-family: 'Arial', sans-serif;
+    font-weight: 500;
+    padding: 12px 20px;
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.year-list li::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0%;
+    height: 5px;
+    background-color: white;
+    transition: width 0.3s ease, left 0.3s ease;
+}
+
+.year-list li:hover::before {
+    width: 100%;
+    left: 0;
+}
+
+
+
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    background: #151A2D;
+    transition: left 0.4s ease, width 0.4s ease;
+    z-index: 1000;
+}
+
+.sidebar.collapsed {
+    width: 60px;
+}
+
+.sidebar-header {
+    padding: 50px;
+    text-align: center;
+    background-color: #151A2D;
+}
+
+.sidebar.collapsed .sidebar-header {
+    padding: 10px;
+}
+
+.sidebar.collapsed .header-logo {
+    display: none;
+}
+
+.sidebar-header .header-logo img {
+    width: 75%;
+    height: auto;
+}
+
+.sidebar-nav .nav-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 0;
+}
+
+.sidebar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    position: relative;
+}
+
+.sidebar-nav .nav-link::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0%;
+    height: 4px;
+    background-color: green;
+    transition: width 0.3s ease, left 0.3s ease;
+}
+
+.sidebar-nav .nav-link:hover::before {
+    width: 100%;
+    left: 0;
+}
+
+.sidebar-nav .nav-link:hover {
+    color: white;
+}
+
+.sidebar.collapsed .nav-icon,
+.sidebar.collapsed .nav-label {
+    display: none;
+}
+
+.nav-icon {
+    font-size: 24px;
+    margin-right: 15px;
+}
+
+
+
+
+body.sidebar-open {
+    margin-left: 250px;
+    transition: margin-left 0.4s ease;
+}
+body.sidebar-open.sidebar-collapsed {
+    margin-left: 60px;   /* When sidebar is collapsed */
+}
+.sidebar.collapsed {
+    width: 60px;  /* Sidebar width when collapsed */
+}
+.main-header h1,
+.main-header h3 {
+    margin-left: 50px;  /* This ensures the header moves right when sidebar is collapsed */
+    transition: margin-left 0.4s ease;
+}
+#toggleBtn {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 30px;
+    color: white;
+    z-index: 1100;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.sidebar.collapsed #toggleBtn {
+    left: 65px;
+}
+
+.sidebar.collapsed .nav-icon {
+    margin-left: 20px;
+}
+
+.sidebar.collapsed .sidebar-nav {
+    margin-top: 50px;
+}
+
+.sidebar.collapsed .sidebar-nav {
+    margin-left: 60px;
+}
+
+
+
+
+
+
+
+.form-container {
+    width: 80%;
+    margin: 50px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+h2 {
+    background-color: green;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    margin: 0;
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+form {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+input, select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Align buttons horizontally and space them out */
+.form-button {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 20px;
+    grid-column: span 3; /* Make buttons span the full width of the form */
+}
+
+.form-button button {
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: center;
+}
+
+/* Button specific styles */
+.save-btn {
+    background-color: darkgreen; /* Green */
+    width: 280px;
+}
+
+.save-btn:hover {
+    background-color: #1b9721;
+}
+
+.cancel-btn {
+    background-color: #000000; /* Red */
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #353434;
+}
+
+.delete-btn {
+    background-color: darkred; /* Dark Red */
+}
+
+.delete-btn:hover {
+    background-color: #f51c18;
+}
+
+
+/* Additional styles for the buttons when focused or active */
+.btn:focus {
+    outline: none;
+}
+
+.btn:active {
+    transform: scale(0.98); /* Slightly shrink when clicked */
+}
+    /* Modal Background Overlay */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Transparent black background */
+        z-index: 1000;
+    }
+
+    /* Modal Dialog */
+    .modal-dialog {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        max-width: 500px;
+        width: 100%;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 1001;
+    }
+
+    /* Modal Header */
+    .modal-header {
+        padding: 1rem;
+        border-bottom: 1px solid #ddd;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header .modal-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+
+    .modal-header .close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    /* Modal Body */
+    .modal-body {
+        padding: 1rem;
+        font-size: 1rem;
+    }
+
+    /* Modal Footer */
+    .modal-footer {
+        padding: 1rem;
+        border-top: 1px solid #ddd;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .modal-footer .btn {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        border-radius: 5px;
+    }
+
+    .modal-footer .btn-secondary {
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+        margin-right: 10px;
+    }
+
+    .modal-footer .btn-primary {
+        background-color: #007bff;
+        color: white;
+        border: 1px solid #007bff;
+    }
+.alert{
+    color: red;
+    font-weight: bolder;
+}
+
+/* Styling for the Assign Subjects link */
+.assign-subjects-link {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #007bff; /* Button-like color */
+    color: white;
+    font-size: 16px;
+    border-radius: 5px; /* Rounded corners */
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* Add hover effect with smooth color transition */
+.assign-subjects-link:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+    transform: scale(1.05); /* Slight zoom effect */
+}
+
+/* Optional: Add focus state for accessibility */
+.assign-subjects-link:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(38, 143, 255, 0.5); /* Highlight with blue border */
+}
+    /* Styling for the modal on mobile */
+    @media (max-width: 600px) {
+        .modal-dialog {
+            width: 90%;
+            padding: 0;
+        }
+
+        .modal-header .modal-title {
+            font-size: 1.1rem;
+        }
+
+        .modal-footer .btn {
+            font-size: 0.9rem;
+            padding: 0.4rem 0.8rem;
+        }
+    }
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .dashboard-box, .new-dev-box {
+        width: 100%;
+    }
+}

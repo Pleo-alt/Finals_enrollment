@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cavite State University - Bacoor Campus Enrollment</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded">
+    <link rel="stylesheet" href="instructor_styles.css">
+</head>
+<body>
+    <!-- Top Navbar -->
+<nav class="top-navbar">
+    <div class="navbar-title">
+        Cavite State University - Bacoor Campus
+    </div>
+
+    <button id="toggleBtn" class="toggleBtn">☰</button>
+
+    <ul class="top-nav-list">
+        <li><a href="#enrollment">Enrollment</a></li>
+        <li><a href="#admission">Admission</a></li>
+        
+    </ul>
+</nav>
+<header class="main-header">
+    <h1>Bachelor of Science in Computer Science</h1>
+    <h3>Instructors</h3>
+</header>
+
+<div class="table-container">
+    <div class="table-header">
+        <h2>Students</h2>
+        <button class="add-student-btn">Add Instructor</button>
+    </div>
+    <div class="search-bar-container">
+        <label for="student-search" class="search-label">🔎</label>
+        <input
+            type="text"
+            id="student-search"
+            class="search-bar"
+            placeholder="Search..."
+        />
+        <button class="search-btn">Go</button> 
+    </div>
+    <table class="enrollment-table">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Middle Name</th>
+                <th>Last Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Pamela</td>
+                <td>---</td>
+                <td>Tagum</td>
+                
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="header-logo">
+            <img src="cvsulogo.png" alt="CVSU Logo">
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <ul class="nav-list primary-nav">
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">group</span>
+                    <span class="nav-label">Profile</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">dashboard</span>
+                    <span class="nav-label">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">view_list</span>
+                    <span class="nav-label">Section</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">school</span>
+                    <span class="nav-label">Students</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">book</span>
+                    <span class="nav-label">Subjects</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">person</span>
+                    <span class="nav-label">Instructors</span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Separate list for Logout -->
+        <ul class="nav-list secondary-nav">
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">logout</span>
+                    <span class="nav-label">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</aside>
+ 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleBtn = document.getElementById('toggleBtn');
+    const sidebar = document.querySelector('.sidebar');
+    const body = document.body;
+    
+    // Initially, the sidebar is expanded, and the body content adjusts.
+    sidebar.classList.remove('collapsed');  // Sidebar is expanded by default
+    body.classList.add('sidebar-open');     // Body content adjusts when sidebar is open
+
+    // Toggle the collapsed state on button click.
+    toggleBtn.addEventListener('click', function () {
+        sidebar.classList.toggle('collapsed');  // Toggle collapse state
+        body.classList.toggle('sidebar-open');  // Adjust body when sidebar is open  
+    });
+    
+    //Forms when the add button is clicked
+    const addStudentBtn = document.querySelector('.add-student-btn');
+    addStudentBtn.addEventListener('click', function () {
+        // Change this URL to your actual add-student template/page
+        window.location.href = 'forms.html'; 
+    });
+
+});
+</script>
+</body>
+</html>

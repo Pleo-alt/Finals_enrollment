@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cavite State University - Bacoor Campus Login</title>
+    <link rel="stylesheet" href="{% static 'css/login_styles.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: url("{% static 'img/background.jpg' %}") no-repeat center center fixed;
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="{% static 'img/img2.png' %}" alt="CvSU" class="logo">
+            <span class="logo-text">CVSU Bacoor</span>
+        </header>
+        <main>
+            <div class="header-container">
+                <h1 class="name">
+                    CAVITE STATE UNIVERSITY<br> BACOOR CAMPUS
+                </h1>
+        
+                <div class="info-login-container">
+                    <!-- Info Section -->
+                    <section class="info">
+                        <p><i class="fas fa-map-marker-alt"></i>Soldiers Hills IV, Molino VI, Bacoor City, Cavite</p>
+                        <p><i class="fas fa-envelope"></i><a href="mailto:cvsuabacoor@cvsu.edu.ph" class="e-link">cvsuabacoor@cvsu.edu.ph</a></p>
+                        <p><i class="fas fa-phone"></i>(046) 476-5029</p>
+                    </section>
+        
+                    <!-- Login Section -->
+                    <section class="login">
+                        <h2>Login</h2>
+                        <form method="post">
+                            {% csrf_token %}
+                            <label for="username_or_email"></label>
+                            <input type="text" id="username_or_email" name="username_or_email" placeholder="Username or Email" required>
+                            <i class="fas fa-user user-icon"></i> 
+                            <label for="password"></label>
+                            <input type="password" id="password" name="password" placeholder="Password" required>
+                            <i class="fas fa-eye eye-icon" id="togglePassword" onclick="togglePasswordVisibility()"></i>
+                            <p class="forgot-password">
+                                <a href="{% url 'password_reset' %}" class="forgot-password-link">Forgot Password?</a>
+                            </p>
+                            <button type="submit">Log In</button>
+                        </form>
+                        
+                        <!-- Display any error messages only if not on the login page -->
+                        {% if messages %}
+                            <div class="error-messages">
+                                {% for message in messages %}
+                                    {% if message.tags == 'error' %}  <!-- Display only error messages -->
+                                        <p class="error">{{ message }}</p>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        function togglePasswordVisibility() {
+            const passwordField = document.getElementById('password');
+            const eyeIcon = document.getElementById('togglePassword');
+            
+            // Toggle the type of the password field between password and text
+            if (passwordField.type === "password") {
+                passwordField.type = "text";  // Show the password
+                eyeIcon.classList.remove('fa-eye');  // Remove the eye icon
+                eyeIcon.classList.add('fa-eye-slash');  // Add the eye-slash icon
+            } else {
+                passwordField.type = "password";  // Hide the password
+                eyeIcon.classList.remove('fa-eye-slash');  // Remove the eye-slash icon
+                eyeIcon.classList.add('fa-eye');  // Add the eye icon
+            }
+        }
+    </script>
+</body>
+</html>
