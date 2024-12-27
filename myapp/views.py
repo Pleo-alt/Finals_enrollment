@@ -10,7 +10,13 @@ from django.utils import timezone
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
+<<<<<<< HEAD
 from django.urls import reverse
+=======
+from django.contrib.auth.views import PasswordResetView
+from django.contrib import messages
+from django.shortcuts import redirect
+>>>>>>> e0a9916fed8799ecba1c371876f5bcb41415af34
 
 def login(request):
     # If user is already authenticated, redirect to their respective dashboard
@@ -81,6 +87,14 @@ def logout(request):
 
     # Redirect back to the login page after logout
     return redirect('login')
+
+class CustomPasswordResetView(PasswordResetView):
+    def form_valid(self, form):
+        email = form.cleaned_data.get('email')
+        if not User.objects.filter(email=email).exists():
+            messages.error(self.request, "No user with this email address was found.")
+            return redirect('password_reset')  # Redirect to the same page
+        return super().form_valid(form)
 
 def dashboard(request):
     # Fetch all courses and year levels
