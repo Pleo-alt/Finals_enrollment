@@ -109,6 +109,22 @@ body.sidebar-open .top-navbar .navbar-title {
     margin-bottom: 15px;
 }
 
+.download-pdf-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-left: 50px; /* Adds space before the Add Student button */
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+.download-pdf-btn:hover {
+    background-color: #218838;
+}
+
+
 /* Add Student Button */
 .add-student-btn {
     background-color: #28a745;

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ section.section_name }} - Students</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        h1, h3 { text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>{{ course.course_name }}</h1>
+    <h3>{{ year.year_level }} - {{ section.section_name }}</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Year Level</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.student_id }}</td>
+                <td>{{ student.first_name }} {{ student.middle_name|default:'' }} {{ student.last_name }}</td>
+                <td>{{ student.year_level.year_level }}</td>
+                <td>{{ student.age }}</td>
+                <td>{{ student.get_gender_display }}</td>
+                <td>{{ student.status|default:"Regular" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

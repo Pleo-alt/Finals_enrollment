@@ -39,8 +39,11 @@
 
 <div class="table-container">
     <div class="table-header">
-        
         <h2>{{ section.section_name }} (Total Students: {{ students_count }})</h2>
+        <a href="{% url 'download_students_pdf' course.course_name year.year_level section.section_name %}">
+            <button class="download-pdf-btn">Download MasterList as PDF</button>
+        </a>
+
         <a href="{% url 'add_student' course_id=course.id year_level=year.year_level section_name=section.section_name %}">
             <button class="add-student-btn">Add Student to {{ section.section_name }}</button>
         </a>

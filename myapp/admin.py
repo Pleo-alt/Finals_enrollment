@@ -1,5 +1,148 @@
 from django.contrib import admin
-from .models import Course, Yearlevel, Semester, Section, Instructor, Subject, Student
+from .models import Course, Yearlevel, Semester, Section, Instructor, Subject, Student, ExcelFile
+from django import forms
+import openpyxl  # or `import xlrd` if you're using `.xls`
+from datetime import datetime
+
+# Register your models here.
+class ExcelFileAdminForm(forms.ModelForm):
+    class Meta:
+        model = ExcelFile
+        fields = ['name', 'file']
+
+    def clean_file(self):
+        file = self.cleaned_data.get('file')
+        if not file.name.endswith(('.xlsx', '.xls')):
+            raise forms.ValidationError('Invalid file type. Only Excel files are supported.')
+        return file
+
+class ExcelFileAdmin(admin.ModelAdmin):
+    form = ExcelFileAdminForm
+
+    def save_model(self, request, obj, form, change):
+        # Save the uploaded file
+        super().save_model(request, obj, form, change)
+        file_path = obj.file.path
+
+        # Open the Excel file
+        workbook = openpyxl.load_workbook(file_path)
+        sheet = workbook.active
+
+        course_to_create = []
+        yearlevel_to_create = []
+        semester_to_create = []
+        instructor_to_create = []
+        section_to_create = []
+        subject_to_create = []
+        student_to_create = []
+
+        # Read the data from Excel and update the Student model
+        for row in sheet.iter_rows(min_row=2, values_only=True):  # Skip the header row
+            print(f"Row data: {row}") 
+            student_first_name, student_middle_name, student_last_name, age, birthday, address, email_address, school_year, enrollment_date, student_id, status, gender, course_name, year_level, semester_name, instructor_first_name, instructor_middle_name, instructor_last_name, section_name, capacity, subject_code, subject_name, subject_unit, section_time, section_day, section_room  = row  # Map columns to fields
+            
+            try:
+                enrollment_date = datetime.strptime(enrollment_date, "%b %d %Y").date()
+            except ValueError:
+                 print(f"Invalid date format: {enrollment_date}")
+                 continue  # Skip rows with invalid dates
+            
+            try:
+                birthday = datetime.strptime(birthday, "%b %d %Y").date()
+            except ValueError:
+                 print(f"Invalid date format for birthday: {birthday}")
+                 continue  # Skip rows with invalid birthday
+            
+             # Check if the course already exists
+            course, created = Course.objects.get_or_create(course_name=course_name)
+            if created:
+                course_to_create.append(course)
+
+            # Check if the year_level already exists
+            year_level_obj, created = Yearlevel.objects.get_or_create(year_level=year_level)
+            if created:
+                yearlevel_to_create.append(year_level_obj)
+
+            # Semester
+            semester_obj, created = Semester.objects.get_or_create(semester_name=semester_name)
+            if created:
+               semester_to_create.append(semester_obj)
+
+              # Check if the section_name already exists
+            section, created = Section.objects.get_or_create(
+                section_name=section_name,
+                course_name=course,  # Link to the correct course
+                year_level=year_level_obj, # Link to the correct year level
+                defaults={'capacity': capacity}, # Only applies when creating a new Section
+            )
+            if created:
+                print(f"New Section created: {section.section_name} with capacity {section.capacity}")
+        
+            # Global check: Skip processing info for all the models if student_id exists in Member
+            if Student.objects.filter(student_id=student_id).exists():
+                print(f"Skipping existing student_id: {student_id}")
+                continue
+
+            instructor_to_create.append(
+                Instructor(
+                    first_name=instructor_first_name,
+                    middle_name=instructor_middle_name,
+                    last_name=instructor_last_name,
+                )
+            )
+
+            subject_to_create.append(
+                Subject(
+                    subject_code=subject_code,
+                    subject_name=subject_name,
+                    subject_unit=subject_unit,
+                    section_time=section_time,
+                    section_day=section_day,
+                    section_room=section_room,
+                    course_name=course,  # Ensure the course is linked
+                    year_level=year_level_obj,
+                )
+            )
+
+            student_to_create.append(
+                Student(
+                    first_name=student_first_name,
+                    middle_name=student_middle_name,
+                    last_name=student_last_name,
+                    age=age,
+                    birthday=birthday,
+                    address=address, 
+                    email_address=email_address,
+                    school_year=school_year,
+                    enrollment_date=enrollment_date,
+                    student_id=student_id,
+                    status=status,
+                    gender=gender,
+                    course_name=course,  # Ensure the course is linked
+                    section_name=section,
+                    semester=semester_obj,
+                    year_level=year_level_obj,
+                )
+            )
+
+        # Bulk create for models
+        Course.objects.bulk_create(course_to_create, ignore_conflicts=True)
+        Yearlevel.objects.bulk_create(yearlevel_to_create)
+        Semester.objects.bulk_create(semester_to_create)
+        Instructor.objects.bulk_create(instructor_to_create)
+        Section.objects.bulk_create(section_to_create)
+        Subject.objects.bulk_create(subject_to_create)
+        Student.objects.bulk_create(student_to_create)
+         
+        print(f"Added {len(course_to_create)} new course.")
+        print(f"Added {len(yearlevel_to_create)} new year levels.")
+        print(f"Added {len(yearlevel_to_create)} new Semester.")
+        print(f"Added {len(instructor_to_create)} new Instructor.")
+        print(f"Added {len(section_to_create)} new Section.")
+        print(f"Added {len(subject_to_create)} new Subject.")
+        print(f"Added {len(student_to_create)} new Student.") 
+
+admin.site.register(ExcelFile, ExcelFileAdmin)
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):

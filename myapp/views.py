@@ -3,7 +3,7 @@ from django.http import Http404,JsonResponse
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .models import Course, Yearlevel, Section, Student, Subject, Instructor,Semester
+from .models import Course, Yearlevel, Section, Student, Subject, Instructor, Semester
 from django.db.models import Q
 from django.utils import timezone 
 from django.db import IntegrityError
@@ -12,6 +12,12 @@ from django.core.paginator import Paginator
 from django.contrib.auth.views import PasswordResetView
 from django.contrib import messages
 from django.shortcuts import redirect
+import openpyxl
+from datetime import datetime
+from django.http import HttpResponse
+from django import forms 
+from django.template.loader import render_to_string
+from weasyprint import HTML
 
 def login(request):
     # Redirect authenticated users to the appropriate page
@@ -109,6 +115,130 @@ def view_section(request, course_name, year_level):
 
     return render(request, 'section.html', {'course': course, 'year': year, 'sections': sections})
 
+# Excel Upload Form
+class ExcelUploadForm(forms.Form):
+    file = forms.FileField()
+
+# Upload Excel View
+def upload_excel(request):
+    if request.method == 'POST':
+        form = ExcelUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            file = form.cleaned_data['file']
+            try:
+                # Load the workbook
+                workbook = openpyxl.load_workbook(file)
+                sheet = workbook.active
+
+                # Containers for bulk creation
+                course_to_create = []
+                yearlevel_to_create = []
+                semester_to_create = []
+                instructor_to_create = []
+                section_to_create = []
+                subject_to_create = []
+                student_to_create = []
+
+                # Process rows from the Excel file
+                for row in sheet.iter_rows(min_row=2, values_only=True):  # Skip the header row
+                    try:
+                        print(f"Row data: {row}") 
+                        # Map columns to variables
+                        (
+                            student_first_name, student_middle_name, student_last_name, age, birthday, address, email_address,
+                            school_year, enrollment_date, student_id, status, gender, course_name, year_level, semester_name,
+                            instructor_first_name, instructor_middle_name, instructor_last_name, section_name, capacity,
+                            subject_code, subject_name, subject_unit, section_time, section_day, section_room
+                        ) = row
+
+                        # Parse dates
+                        enrollment_date = datetime.strptime(enrollment_date, "%b %d %Y").date()
+                        birthday = datetime.strptime(birthday, "%b %d %Y").date()
+
+                        # Course
+                        course, _ = Course.objects.get_or_create(course_name=course_name)
+                        
+                        # Year Level
+                        year_level_obj, _ = Yearlevel.objects.get_or_create(year_level=year_level)
+                        
+                        # Semester
+                        semester_obj, _ = Semester.objects.get_or_create(semester_name=semester_name)
+                        
+                        # Section
+                        section, _ = Section.objects.get_or_create(
+                            section_name=section_name,
+                            course_name=course,
+                            year_level=year_level_obj,
+                            defaults={'capacity': capacity},
+                        )
+
+                        # Skip if student already exists
+                        if Student.objects.filter(student_id=student_id).exists():
+                            print(f"Skipping existing student_id: {student_id}")
+                            continue
+
+                        # Prepare instructors for bulk creation
+                        instructor_to_create.append(
+                            Instructor(
+                                first_name=instructor_first_name,
+                                middle_name=instructor_middle_name,
+                                last_name=instructor_last_name,
+                            )
+                        )
+
+                        # Prepare subjects for bulk creation
+                        subject_to_create.append(
+                            Subject(
+                                subject_code=subject_code,
+                                subject_name=subject_name,
+                                subject_unit=subject_unit,
+                                section_time=section_time,
+                                section_day=section_day,
+                                section_room=section_room,
+                                course_name=course,
+                                year_level=year_level_obj,
+                            )
+                        )
+
+                        # Prepare students for bulk creation
+                        student_to_create.append(
+                            Student(
+                                first_name=student_first_name,
+                                middle_name=student_middle_name,
+                                last_name=student_last_name,
+                                age=age,
+                                birthday=birthday,
+                                address=address,
+                                email_address=email_address,
+                                school_year=school_year,
+                                enrollment_date=enrollment_date,
+                                student_id=student_id,
+                                status=status,
+                                gender=gender,
+                                course_name=course,
+                                section_name=section,
+                                semester=semester_obj,
+                                year_level=year_level_obj,
+                            )
+                        )
+                    except Exception as e:
+                        print(f"Error processing row: {row}, Error: {e}")
+                        continue
+
+                # Bulk create for efficiency
+                Instructor.objects.bulk_create(instructor_to_create)
+                Subject.objects.bulk_create(subject_to_create)
+                Student.objects.bulk_create(student_to_create)
+
+                return HttpResponse("File processed successfully!")
+
+            except Exception as e:
+                return HttpResponse(f"Error processing file: {e}")
+
+    else:
+        form = ExcelUploadForm()
+
+    return render(request, 'upload_excel.html', {'form': form})
 
 
 def view_students(request, course_name, year_level, section_name):
@@ -160,6 +290,30 @@ def view_students(request, course_name, year_level, section_name):
     }
 
     return render(request, 'student.html', context)
+
+def download_students_pdf(request, course_name, year_level, section_name):
+    course = get_object_or_404(Course, course_name=course_name)
+    year = get_object_or_404(Yearlevel, year_level=year_level)
+    section = get_object_or_404(Section, section_name=section_name, course_name=course, year_level=year)
+    
+    # Fetch the students
+    students = Student.objects.filter(course_name=course, year_level=year, section_name=section)
+    
+    # Render the HTML content for the PDF
+    html_string = render_to_string('students_pdf_template.html', {
+        'students': students,
+        'course': course,
+        'year': year,
+        'section': section,
+    })
+    
+    # Generate the PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{section.section_name}_students.pdf"'
+    HTML(string=html_string).write_pdf(response)
+    
+    return response
+
 def view_student_subjects(request, course_name, year_level, section_name, student_id):
     # Fetching the course, year_level, section, and student objects
     course = get_object_or_404(Course, course_name=course_name)
@@ -245,6 +399,10 @@ def add_student(request, course_id, year_level, section_name):
         status = request.POST.get('status')
         student_id = request.POST.get('student_id')
         gender = request.POST.get('gender')  # Get gender
+        birthday = request.POST.get('birthday')  # Get birthday
+        address = request.POST.get('address')  # Get address
+        email_address = request.POST.get('email_address')  # Get email address
+        school_year = request.POST.get('school_year')  # Get school year
 
         # If no student ID is provided, auto-generate one
         if not student_id:
@@ -270,6 +428,10 @@ def add_student(request, course_id, year_level, section_name):
                 status=status,
                 student_id=student_id,
                 gender=gender,  # Set gender
+                birthday=birthday,  # Save birthday
+                address=address,  # Save address
+                email_address=email_address,  # Save email address
+                school_year=school_year,  # Save school year
             )
 
             try:
@@ -340,6 +502,10 @@ def edit_student(request, student_id):
         subject_ids = request.POST.getlist("subjects")
         course_id = request.POST.get("course")
         year_level_id = request.POST.get("yearLevel")
+        birthday = request.POST.get('birthday')  # Get birthday
+        address = request.POST.get('address')  # Get address
+        email_address = request.POST.get('email_address')  # Get email address
+        school_year = request.POST.get('school_year')  # Get school year
 
         # Fetch related objects
         course = get_object_or_404(Course, id=course_id)
@@ -359,6 +525,10 @@ def edit_student(request, student_id):
         student.section_name = section
         student.status = status
         student.gender = gender  # Update gender
+        student.birthday = birthday  # Save birthday
+        student.address = address  # Save address
+        student.email_address = email_address  # Save email address
+        student.school_year = school_year  # Save school year
 
         # Handle potential IntegrityError if student_id is not unique
         try:

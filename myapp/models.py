@@ -90,7 +90,7 @@ class Student(models.Model):
     address = models.CharField(max_length=500, null=True, blank=True)  # Changed to CharField
     email_address = models.EmailField(unique=True, null=True, blank=True)  # New field
     school_year = models.CharField(max_length=9, null=True, blank=True)  # New field
-    enrollment_date = models.DateField(auto_now=True)
+    enrollment_date = models.DateField(null=True, blank=True)
 
     student_id = models.CharField(max_length=9, unique=True, blank=True, null=True, db_index=True)
     status = models.CharField(max_length=100, blank=True, null=True)
@@ -141,3 +141,11 @@ class Student(models.Model):
 
     class Meta:
         ordering = ['last_name', 'first_name']  # Sort students by name
+
+class ExcelFile(models.Model):
+    name = models.CharField(max_length=255)
+    file = models.FileField(upload_to='uploads/excel_files/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name

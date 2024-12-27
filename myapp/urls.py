@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from .views import CustomPasswordResetView
+from .views import upload_excel
 
 urlpatterns = [
     # Authentication and Dashboard
@@ -31,6 +32,11 @@ urlpatterns = [
     path('<str:course_name>/<str:year_level>/', views.view_section, name='sections'),
     path('view_students/<str:course_name>/<str:year_level>/<str:section_name>/', views.view_students, name='view_students'),
 
+    #Excels
+    path('upload-excel/', upload_excel, name='upload_excel'),
+
+    #Downloading pdf
+    path('download_students_pdf/<str:course_name>/<str:year_level>/<str:section_name>/', views.download_students_pdf, name='download_students_pdf'),
     
     # Student subjects and instructor views
     path('view_student_subjects/<str:course_name>/<str:year_level>/<str:section_name>/<int:student_id>/', views.view_student_subjects, name='view_student_subjects'),

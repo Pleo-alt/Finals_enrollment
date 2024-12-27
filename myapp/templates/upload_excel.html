@@ -1,0 +1,130 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excels</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded">
+    <link rel="stylesheet" href="{% static 'css/excel_style.css' %}">
+    <style>
+        .main-header{
+            background: url("{% static 'img/background.jpg' %}");
+             background-size: cover;
+             background-position: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navbar -->
+<nav class="top-navbar">
+    <div class="navbar-title">
+        <a href="{% url 'dashboard' %}">
+        Cavite State University - Bacoor Campus
+        </a>
+    </div>
+
+    <button id="toggleBtn" class="toggleBtn">☰</button>
+
+    <ul class="top-nav-list">
+        <li><a href="{% url 'dashboard' %}">Enrollment</a></li>
+        <li><a href="#admission">Admission</a></li>
+        
+    </ul>
+</nav>
+<header class="main-header">
+    <h1>EXCELS</h1>
+</header>
+
+<form method="post" enctype="multipart/form-data" class="form-container">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="file" class="form-label">Upload Excel File:</label>
+        {{ form.file }}
+    </div>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-submit">Upload</button>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</form>
+    
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="header-logo">
+            <img src="{% static 'img/cvsulogo.png' %}" alt="CVSU Logo">
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <ul class="nav-list primary-nav">
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">group</span>
+                    <span class="nav-label">Profile</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'dashboard' %}" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">dashboard</span>
+                    <span class="nav-label">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">view_list</span>
+                    <span class="nav-label">Sections</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">school</span>
+                    <span class="nav-label">Students</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">book</span>
+                    <span class="nav-label">Subjects</span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Separate list for Logout -->
+        <ul class="nav-list secondary-nav">
+            <li class="nav-item">
+                <a href="{% url 'logout' %}" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">logout</span>
+                    <span class="nav-label">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</aside>
+ 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleBtn = document.getElementById('toggleBtn');
+    const sidebar = document.querySelector('.sidebar');
+    const body = document.body;
+    
+    // Initially, the sidebar is expanded, and the body content adjusts.
+    sidebar.classList.remove('collapsed');  // Sidebar is expanded by default
+    body.classList.add('sidebar-open');     // Body content adjusts when sidebar is open
+
+    // Toggle the collapsed state on button click.
+    toggleBtn.addEventListener('click', function () {
+        sidebar.classList.toggle('collapsed');  // Toggle collapse state
+        body.classList.toggle('sidebar-open');  // Adjust body when sidebar is open  
+    });
+    
+    //Forms when the add button is clicked
+    const addStudentBtn = document.querySelector('.add-student-btn');
+    addStudentBtn.addEventListener('click', function () {
+        // Change this URL to your actual add-student template/page
+        window.location.href = 'forms.html'; 
+    });
+
+});
+</script>
+</body>
+</html>
