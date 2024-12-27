@@ -8,6 +8,7 @@ urlpatterns = [
     # Authentication and Dashboard
     path('', views.login, name='login'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('student_dashboard/', views.student_dashboard, name='student_dashboard'),
     path('logout/', views.logout, name='logout'),
 
     # Password reset URLs

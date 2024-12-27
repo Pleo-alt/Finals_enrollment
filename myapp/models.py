@@ -1,6 +1,7 @@
 from django.db import models
 from django.db import transaction
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 # Course model
 class Course(models.Model):
@@ -77,6 +78,7 @@ class Subject(models.Model):
         return self.subject_name
 
 class Student(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
     course_name = models.ForeignKey(Course, on_delete=models.CASCADE)
     year_level = models.ForeignKey(Yearlevel, on_delete=models.CASCADE)
     section_name = models.ForeignKey(Section, on_delete=models.CASCADE)

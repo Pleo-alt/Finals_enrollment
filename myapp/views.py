@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect,  get_object_or_404
 from django.http import Http404,JsonResponse
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import Course, Yearlevel, Section, Student, Subject, Instructor,Semester
@@ -9,42 +10,67 @@ from django.utils import timezone
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
+from django.urls import reverse
 
 def login(request):
-    # Redirect authenticated users to the appropriate page
+    # If user is already authenticated, redirect to their respective dashboard
     if request.user.is_authenticated:
-        if request.user.is_staff:  # Check if the user is a superuser/admin
-            return redirect('/admin')  # Redirect superuser to admin panel
-        return redirect('dashboard')  # Regular user to the dashboard
+        return redirect(reverse('admin:index') if request.user.is_staff else 'dashboard')
 
     if request.method == 'POST':
-        # Get the login input (could be username or email)
         username_or_email = request.POST.get('username_or_email')
         password = request.POST.get('password')
-        
-        # Check if the input is an email or username
+
+        # Attempt to authenticate based on username or email
+        user = None
         if '@' in username_or_email:
-            try:
-                # Attempt to find the user by email
-                user = User.objects.get(email=username_or_email)
+            # For email login
+            user = User.objects.filter(email=username_or_email).first()
+            if user:
                 user = authenticate(request, username=user.username, password=password)
-            except User.DoesNotExist:
-                user = None
         else:
-            # Attempt to authenticate with username
+            # For username login
             user = authenticate(request, username=username_or_email, password=password)
 
-        # If user is found and authentication is successful
-        if user is not None:
-            auth_login(request, user)  # Log the user in
-            if user.is_staff:  # If the user is an admin
-                return redirect('/admin')  # Redirect admin to the admin panel
-            return redirect('dashboard')  # Redirect regular user to the dashboard
-        else:
-            messages.error(request, 'Invalid username/email or password.')
-            return redirect('login')  # Redirect back to login after failed login attempt
+        # If user was not found or authentication failed, check if it's a student login
+        if not user:
+            try:
+                # Attempt to find the student by student_id
+                student = Student.objects.get(student_id=username_or_email)
+                if password == 'abcd1234':  # Default password for student
+                    # If correct, authenticate the student as a user
+                    user = student.user  # Assuming student has a linked User object for authentication
+                    auth_login(request, user)
+                    return redirect('student_dashboard')  # Redirect to the student dashboard
+            except Student.DoesNotExist:
+                pass  # Student doesn't exist or wrong student ID, continue to the error message
+
+        # If no valid user found (either regular or student), display a generic error message
+        if not user:
+            messages.error(request, 'Invalid login credentials')
+            return redirect('login')
+
+        # If authentication succeeded, log the user in and redirect to the appropriate dashboard
+        auth_login(request, user)
+        return redirect(reverse('admin:index') if user.is_staff else 'dashboard')
 
     return render(request, 'registration/login.html')
+    
+@login_required
+def student_dashboard(request):
+    # Get the student object related to the logged-in user
+    try:
+        student = Student.objects.get(user=request.user)
+    except Student.DoesNotExist:
+        student = None  # In case the student doesn't exist for the user
+    
+    # Pass the student object to the template context
+    context = {
+        'student': student,
+    }
+    
+    return render(request, 'student_dashboard.html', context)
+
 def logout(request):
     # Clear all messages from the session manually before logging out
     if '_messages' in request.session:
@@ -265,10 +291,19 @@ def add_student(request, course_id, year_level, section_name):
                 # Save the student to the database
                 student.save()
 
+                # Create the user and link to the student if it doesn't exist
+                if not student.user:  # Check if user is not already linked
+                    username = f"{first_name.lower()}{last_name.lower()}"
+                    password = "abcd1234"  # You can replace this with a stronger password generation logic
+                    user = User.objects.create_user(username=username, password=password, email=student.email_address)
+                    
+                    # Link the created user to the student
+                    student.user = user
+                    student.save()  # Save the student with the linked user
 
                 return redirect('view_students', course_name=course.course_name, year_level=year_level_obj.year_level, section_name=selected_section.section_name)
             except IntegrityError:
-                error_message = "Student ID already exist."
+                error_message = "Student ID already exists."
 
     # Fetch semesters and subjects for the form
     semesters = Semester.objects.all()
@@ -502,7 +537,7 @@ def edit_section(request, section_id):
         section.save()
 
         # Redirect to the section list or detail view
-        return redirect("view_sections", course_name=course.course_name, year_level=year_level_obj.year_level)
+        return redirect("sections", course_name=course.course_name, year_level=year_level_obj.year_level)
 
     # Prepare context data for the form
     context = {

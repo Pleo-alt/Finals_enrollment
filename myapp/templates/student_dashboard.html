@@ -1,0 +1,246 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cavite State University - Bacoor Campus Enrollment</title>
+    <!-- Include Material Symbols for icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded">
+    <!-- Link to external stylesheet -->
+    <link rel="stylesheet" href="{% static 'css/student_view_styles.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        .main-header {
+            background: url("{% static 'img/background.jpg' %}");
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+    
+</head>
+<body>
+    <!-- Top Navbar -->
+    <nav class="top-navbar">
+        <div class="navbar-title">
+            Cavite State University - Bacoor Campus
+        </div>
+        <!-- Sidebar toggle button -->
+        <button id="toggleBtn" class="toggleBtn">☰</button>
+    </nav>
+
+    <!-- Main Header -->
+    <header class="main-header">
+        <h1>{{ student.course_name.course_name }}</h1>
+        <h3>{{ student.year_level.year_level }}</h3>
+    </header>
+
+     <!-- Sidebar -->
+     <aside class="sidebar">
+        <!-- Sidebar Header with Logo -->
+        <div class="sidebar-header">
+            <div class="header-logo">
+                <img src="{% static 'img/cvsulogo.png' %}" alt="CVSU Logo">
+            </div>
+        </div>
+   <!-- Navigation Links -->
+<nav class="sidebar-nav">
+    <ul class="nav-list primary-nav">
+        <!-- Profile Link -->
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+                <span class="nav-icon material-symbols-rounded">group</span>
+                <span class="nav-label">Profile</span>
+            </a>
+        </li>
+        <!-- Dashboard Link -->
+        <li class="nav-item">
+            <a href="{% url 'student_dashboard' %}"class="nav-link">
+                <span class="nav-icon material-symbols-rounded">dashboard</span>
+                <span class="nav-label">Dashboard</span>
+            </a>
+        </li>
+        
+        <!-- Section Dropdown -->
+<li class="nav-item">
+    <a href="#" class="nav-link" onclick="toggleSubMenu(event)">
+        <span class="nav-icon material-symbols-rounded">view_list</span>
+        <span class="nav-label">Section</span>
+        <span class="nav-arrow material-symbols-rounded">expand_more</span>
+    </a>
+    <ul class="sub-menu">
+        <!-- Computer Science Section -->
+        <li class="nav-sub-item">
+            <a href="#" class="nav-sub-link" onclick="toggleInnerSubMenu(event)">
+                <span class="nav-labels">Computer Science</span>
+                <span class="nav-arrow material-symbols-rounded">expand_more</span>
+            </a>
+            <ul class="sub-menu inner-sub-menu">
+                <li class="nav-sub-item"><a href="#" class="nav-sub-link">1st Year</a></li>
+                <li class="nav-sub-item"><a href="#" class="nav-sub-link">2nd Year</a></li>
+                <li class="nav-sub-item"><a href="#" class="nav-sub-link">3rd Year</a></li>
+                <li class="nav-sub-item"><a href="#" class="nav-sub-link">4th Year</a></li>
+            </ul>
+        </li>
+
+        <!-- Information Technology Section -->
+        <li class="nav-sub-item">
+            <a href="#" class="nav-sub-link" onclick="toggleInnerSubMenu(event)">
+                <span class="nav-labels">Information Technology</span>
+                <span class="nav-arrow material-symbols-rounded">expand_more</span>
+            </a>
+            <ul class="sub-menu inner-sub-menu">
+                <li class="nav-sub-item"><a href="#" class="nav-sub-link">1st Year</a></li>
+                <li class="nav-sub-item"><a href="#" class="nav-sub-link">2nd Year</a></li>
+                <li class="nav-sub-item"><a href="#" class="nav-sub-link">3rd Year</a></li>
+                <li class="nav-sub-item"><a href="#" class="nav-sub-link">4th Year</a></li>
+            </ul>
+        </li>
+    </ul>
+</li>
+
+
+
+        <!-- Students Dropdown -->
+        <li class="nav-item">
+            <a href="#" class="nav-link" onclick="toggleSubMenu(event)">
+                <span class="nav-icon material-symbols-rounded">school</span>
+                <span class="nav-label">Students</span>
+                <span class="nav-arrow material-symbols-rounded">expand_more</span>
+            </a>
+            <ul class="sub-menu">
+                <li class="nav-sub-item">
+                    <a href="#" class="nav-sub-link">
+                       <span class="nav-labels">Computer Science</span>
+                    </a>
+                </li>
+                <li class="nav-sub-item">
+                    <a href="#" class="nav-sub-link">
+                        <span class="nav-labels">Information Technology</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <!-- Subjects Dropdown -->
+        <li class="nav-item">
+            <a href="#" class="nav-link" onclick="toggleSubMenu(event)">
+                <span class="nav-icon material-symbols-rounded">code</span>
+                <span class="nav-label">Subjects</span>
+                <span class="nav-arrow material-symbols-rounded">expand_more</span>
+            </a>
+            <ul class="sub-menu">
+                <li class="nav-sub-item">
+                    <a href="#" class="nav-sub-link">
+                                          <span class="nav-labels">Computer Science</span>
+                    </a>
+                </li>
+                <li class="nav-sub-item">
+                    <a href="#" class="nav-sub-link">
+                        <span class="nav-labels">Information Technology</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <!-- Instructors -->
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+                <span class="nav-icon material-symbols-rounded">person</span>
+                <span class="nav-label">Instructors</span>
+            </a>
+        </li>
+    </ul>
+
+
+            <!-- Logout Section -->
+            <ul class="nav-list secondary-nav">
+                <li class="nav-item">
+                    <a href="{% url 'logout' %}" class="nav-link">
+                        <span class="nav-icon material-symbols-rounded">logout</span>
+                        <span class="nav-label">Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+  
+  
+
+    <div class="certificate-container">
+        <h2>Certificate of Registration</h2>
+        <div class="student-info-container">
+            <div class="student-info-row">
+                <div><i class="fas fa-id-card"></i> <strong>Student Number:</strong> {{ student.student_id }}</div>
+                <div><i class="fas fa-users"></i> <strong>Course and Section:</strong> {{ student.course_name.course_name }} {{ student.section_name.section_name }}</div>
+            </div>
+            <div class="student-info-row">
+                <div><i class="fas fa-user"></i> <strong>Student Name:</strong> {{ student.last_name|upper }}, {{ student.first_name|title }}</div>
+                <div><i class="fas fa-graduation-cap"></i> <strong>Year:</strong> {{ student.year_level.year_level }}</div>
+            </div>
+            <div class="student-info-row">
+                <div><i class="fas fa-pencil-alt"></i> <strong>Semester:</strong> {{ student.semester.semester_name }}</div>
+                <div><i class="fas fa-calendar-alt"></i> <strong>Date:</strong> {{ student.enrollment_date|date:"d-M-y" }}</div>
+            </div>
+        </div>
+    
+        <table>
+            <thead>
+                <tr>
+                <th>Course Code</th>
+                <th>Course Name</th>
+                <th>Credits Unit</th>
+                <th>Time</th>
+                <th>Day</th>
+                <th>Room</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subject in student.subjects.all %}
+                <tr>
+                    <td>{{ subject.subject_code }}</td>
+                    <td>{{ subject.subject_name }}</td>
+                    <td>{{ subject.subject_unit }}</td>
+                    <td>{{ subject.section_time }}</td>
+                    <td>{{ subject.section_day }}</td>
+                    <td>{{ subject.section_room }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No subjects found for this student.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+  
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.getElementById('toggleBtn');
+            const sidebar = document.querySelector('.sidebar');
+            const body = document.body;
+
+            // Initially, the sidebar is expanded
+            sidebar.classList.remove('collapsed');  
+            body.classList.add('sidebar-open');     
+
+            // Toggle the collapsed state on button click
+            toggleBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('collapsed');  
+                body.classList.toggle('sidebar-open');  
+            });
+        });
+
+        
+        /* for menu bar*/
+        function toggleSubMenu(event) {
+    event.preventDefault();
+    const navItem = event.currentTarget.closest('.nav-item');
+    navItem.classList.toggle('open');
+}
+
+        
+    </script>
+</body>
+</html>
