@@ -1,0 +1,233 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Student Dashboard - Cavite State University</title>
+        <!-- Include Material Symbols for icons -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded">
+        <!-- Link to external stylesheet -->
+        <link rel="stylesheet" href="{% static 'css/student_profile_styles.css' %}">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    </head>
+<body>
+    
+     <!-- Top Navbar -->
+     <nav class="top-navbar">
+        <div class="navbar-title">
+            Cavite State University - Bacoor Campus
+        </div>
+        <button id="toggleBtn" class="toggleBtn">☰</button>
+        <ul class="top-nav-list">
+        </ul>
+    </nav>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <!-- Sidebar Header with Logo -->
+        <div class="sidebar-header">
+            <div class="header-logo">
+                <img src="{% static 'img/cvsulogo.png' %}" alt="CVSU Logo">
+            </div>
+        </div>
+        <!-- Navigation Links -->
+        <nav class="sidebar-nav">
+            <ul class="nav-list primary-nav">
+                <!-- Profile Link -->
+                <li class="nav-item">
+                    <a href="{% url 'student_profile' %}" class="nav-link">
+                        <span class="nav-icon material-symbols-rounded">group</span>
+                        <span class="nav-label">Profile</span>
+                    </a>
+                </li>
+                <!-- Dashboard Link -->
+                <li class="nav-item">
+                    <a href="{% url 'student_dashboard' %}" class="nav-link">
+                        <span class="nav-icon material-symbols-rounded">home</span>
+                        <span class="nav-label">Home</span>
+                    </a>
+                </li>
+                <!-- Section Dropdown -->
+<li class="nav-item">
+    <a href="#" class="nav-link" onclick="toggleSubMenu(event)">
+        <span class="nav-icon material-symbols-rounded">view_list</span>
+        <span class="nav-label">Section</span>
+        <span class="nav-arrow material-symbols-rounded">expand_more</span>
+    </a>
+    <ul class="sub-menu">
+        <!-- Sub-menu Items -->
+        <li class="nav-sub-item">
+            <a href="#" class="nav-sub-link">
+               <span class="nav-labels">Computer Science</span>
+            </a>
+        </li>
+        <li class="nav-sub-item">
+            <a href="#" class="nav-sub-link">
+                <span class="nav-labels">Information Technology</span>
+            </a>
+        </li>
+    </ul>
+</li>
+
+                <!-- Other Navigation Items -->
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon material-symbols-rounded">school</span>
+                        <span class="nav-label">Students</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon material-symbols-rounded">code</span>
+                        <span class="nav-label">Subjects</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon material-symbols-rounded">person</span>
+                        <span class="nav-label">Instructors</span>
+                    </a>
+                </li>
+            </ul>
+            <!-- Separate list for Logout -->
+        <ul class="nav-list secondary-nav">
+            <li class="nav-item">
+                <a href="{% url 'logout' %}" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">logout</span>
+                    <span class="nav-label">Logout</span>
+                </a>
+            </li>
+        </ul>
+        </nav>
+    </aside>
+
+    <header class="dashboard-header">
+        <h1>Personal Information</h1>
+    </header>
+    <main class="dashboard-main">
+        <!-- Profile Section -->
+        <section id="profile" class="dashboard-section">
+            <h2>Your Profile</h2>
+            <p><strong>Username:</strong> {{ request.user.username }}</p>
+            <p><strong>Email:</strong> {{ request.user.email }}</p>
+        </section>
+    
+        <!-- Change Password Section -->
+        <section id="change-password" class="dashboard-section">
+            <h3>Change Your Password</h3>
+    
+            
+    
+            <!-- Password Change Form -->
+<form method="post" id="password-form" class="password-form">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="current_password">Current Password:</label>
+        <div class="password-container">
+            <input type="password" id="current_password" name="current_password" required>
+            <i class="fas fa-eye" id="toggleCurrentPassword" style="cursor: pointer;"></i>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="new_password">New Password:</label>
+        <div class="password-container">
+            <input type="password" id="new_password" name="new_password" required>
+            <i class="fas fa-eye" id="toggleNewPassword" style="cursor: pointer;"></i>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="confirm_password">Confirm New Password:</label>
+        <div class="password-container">
+            <input type="password" id="confirm_password" name="confirm_password" required>
+            <i class="fas fa-eye" id="toggleConfirmPassword" style="cursor: pointer;"></i>
+        </div>
+    </div>
+    
+    <button type="submit" class="btn-submit">Update Password</button>
+</form>
+
+<!-- Display success or error messages -->
+<div id="messages-container"></div>
+
+            
+        </section>
+    </main>
+       <!-- JavaScript -->
+       <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+       <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.getElementById('toggleBtn');
+            const sidebar = document.querySelector('.sidebar');
+            const body = document.body;
+
+            // Initially, the sidebar is expanded
+            sidebar.classList.remove('collapsed');  
+            body.classList.add('sidebar-open');     
+
+            // Toggle the collapsed state on button click
+            toggleBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('collapsed');  
+                body.classList.toggle('sidebar-open');  
+            });
+        });
+
+        /* For menu bar */
+        function toggleSubMenu(event) {
+            event.preventDefault();
+            const navItem = event.currentTarget.closest('.nav-item');
+            navItem.classList.toggle('open');
+        }
+            // Get all the toggle icons and password fields
+    const toggleCurrentPassword = document.getElementById('toggleCurrentPassword');
+    const toggleNewPassword = document.getElementById('toggleNewPassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+
+    const currentPassword = document.getElementById('current_password');
+    const newPassword = document.getElementById('new_password');
+    const confirmPassword = document.getElementById('confirm_password');
+
+    // Toggle visibility function
+    function togglePasswordVisibility(passwordField, icon) {
+        const type = passwordField.type === 'password' ? 'text' : 'password';
+        passwordField.type = type;
+        icon.classList.toggle('fa-eye-slash');
+    }
+
+    // Add event listeners to toggle icons
+    toggleCurrentPassword.addEventListener('click', function() {
+        togglePasswordVisibility(currentPassword, toggleCurrentPassword);
+    });
+
+    toggleNewPassword.addEventListener('click', function() {
+        togglePasswordVisibility(newPassword, toggleNewPassword);
+    });
+
+    toggleConfirmPassword.addEventListener('click', function() {
+        togglePasswordVisibility(confirmPassword, toggleConfirmPassword);
+    });
+
+    $(document).ready(function() {
+        $('#password-form').submit(function(e) {
+            e.preventDefault();  // Prevent the default form submission
+
+            var formData = $(this).serialize();  // Serialize the form data
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "student_profile" %}',  // Make sure this URL matches the view URL
+                data: formData,
+                success: function(response) {
+                    // If the response contains messages, inject them into the page
+                    $('#messages-container').html(response.messages_html);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error: " + error);
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>

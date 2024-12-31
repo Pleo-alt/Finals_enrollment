@@ -98,7 +98,11 @@
     <h2>Student Form</h2>
     <form method="POST">
         {% csrf_token %}
-
+        {% if error_message %}
+        <div class="error-message" style="color: red;">
+            <strong>{{ error_message }}</strong>
+        </div>
+        {% endif %}
         <!-- First Name -->
         <div class="form-group">
             <label for="firstName">First Name:</label>
@@ -150,22 +154,23 @@
     <input type="text" id="section" name="section" value="{{ selected_section.section_name }}" readonly>
 </div>
 
-        <!-- Semester -->
-        <div class="form-group">
-            <label for="semester">Semester:</label>
-            <select id="semester" name="semester" required>
-                {% for semester in semesters %}
-                    <option value="{{ semester.id }}" {% if semester.id == student.semester.id %}selected{% endif %}>
-                        {{ semester.semester_name }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-        <!-- Birthday Field -->
+       <!-- Semester -->
+<div class="form-group">
+    <label for="semester">Semester:</label>
+    <select id="semester" name="semester" required>
+        {% for semester_value, semester_display in semesters %}
+            <option value="{{ semester_value }}" {% if semester_value == student.semester.semester_name %}selected{% endif %}>
+                {{ semester_display }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+<!-- Birthday Field -->
 <div class="form-group">
     <label for="birthday">Birthday:</label>
     <!-- Input for selecting the student's birthday -->
-    <input type="date" id="birthday" name="birthday" placeholder="Select Birthday">
+    <input type="date" id="birthday" name="birthday" placeholder="Select Birthday" value="{{ student.birthday|date:'Y-m-d' }}">
 </div>
 
 <!-- Address Field -->
@@ -188,14 +193,41 @@
     <!-- Input for entering the academic year (e.g., 2023-2024) -->
     <input type="text" id="school_year" name="school_year" placeholder="e.g., 2023-2024">
 </div>
- <!-- Status -->
- <div class="form-group">
+
+<!-- Status -->
+<div class="form-group">
     <label for="status">Status:</label>
     <select id="status" name="status" required>
-        <option value="Regular">Regular</option>
-        <option value="Irregular">Irregular</option>
+        <option value="Regular" {% if form.status.value == 'Regular' %}selected{% endif %}>Regular</option>
+        <option value="Irregular" {% if form.status.value == 'Irregular' %}selected{% endif %}>Irregular</option>
     </select>
 </div>
+
+<!-- Nationality -->
+<div class="form-group">
+    <label for="nationality">Nationality:</label>
+    <input type="text" id="nationality" name="nationality" value="{{ form.nationality.value }}" required>
+</div>
+
+<!-- Civil Status -->
+<div class="form-group">
+    <label for="civil_status">Civil Status:</label>
+    <select id="civil_status" name="civil_status" required>
+        <option value="Single" {% if form.civil_status.value == 'Single' %}selected{% endif %}>Single</option>
+        <option value="Married" {% if form.civil_status.value == 'Married' %}selected{% endif %}>Married</option>
+        <option value="Widowed" {% if form.civil_status.value == 'Widowed' %}selected{% endif %}>Widowed</option>
+        <option value="Divorced" {% if form.civil_status.value == 'Divorced' %}selected{% endif %}>Divorced</option>
+        <option value="Seperated" {% if form.civil_status.value == 'Seperated' %}selected{% endif %}>Seperated</option>
+    </select>
+</div>
+
+<!-- Cellphone Number -->
+<div class="form-group">
+    <label for="cellphone_number">Cellphone Number:</label>
+    <input type="text" id="cellphone_number" name="cellphone_number" value="{{ form.cellphone_number.value }}" placeholder="Enter your cellphone number" maxlength="15" required>
+</div>
+
+
 
        
 
@@ -207,11 +239,7 @@
                    {% if student.student_id %} readonly {% endif %}>
         </div>
 
-        {% if error_message %}
-        <div class="error-message" style="color: red;">
-            <strong>{{ error_message }}</strong>
-        </div>
-        {% endif %}
+ 
         
         <button type="submit" class="btn save-btn">Save</button>
         <button type="button" class="btn cancel-btn" id="cancelButton" data-url="{% url 'view_students' course_name=course.course_name year_level=year_level.year_level section_name=selected_section.section_name %}">Cancel</button>

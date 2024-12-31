@@ -194,7 +194,6 @@ class SemesterAdmin(admin.ModelAdmin):
     list_display = ('semester_name',)
     search_fields = ('semester_name',)
 
-
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
     list_display = (
@@ -206,7 +205,7 @@ class StudentAdmin(admin.ModelAdmin):
         'year_level',
         'semester_enrolled',
         'subjects_display',
-        'student_id',
+        'student_id',  # Display Student ID
         'enrollment_date',
         'status',
         'birthday',  # Added new field
@@ -214,6 +213,9 @@ class StudentAdmin(admin.ModelAdmin):
         'email_address',  # Added new field
         'school_year',  # Added new field
         'gender',  # Added gender field
+        'cellphone_number',
+        'civil_status',
+        'nationality',
     )
     search_fields = (
         'first_name',
@@ -227,6 +229,7 @@ class StudentAdmin(admin.ModelAdmin):
         'email_address',  # Added new field
         'school_year',  # Added new field
         'gender',  # Added gender field to search
+        'student_id',  # Allow searching by student ID
     )
     list_filter = (
         'year_level',

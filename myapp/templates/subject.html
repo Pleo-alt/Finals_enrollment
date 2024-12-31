@@ -17,21 +17,31 @@
 </head>
 <body>
     <!-- Top Navbar -->
-<nav class="top-navbar">
-    <div class="navbar-title">
-        <a href="{% url 'dashboard' %}">
-        Cavite State University - Bacoor Campus
-    </a>
-    </div>
-
-    <button id="toggleBtn" class="toggleBtn">☰</button>
-
-    <ul class="top-nav-list">
-        <li><a href="{% url 'dashboard' %}">Enrollment</a></li>
-        <li><a href="#admission">Admission</a></li>
-        
-    </ul>
-</nav>
+    <nav class="top-navbar">
+        <div class="navbar-title">
+            <a href="{% url 'dashboard' %}">
+                Cavite State University - Bacoor Campus
+            </a>
+        </div>
+    
+        <button id="toggleBtn" class="toggleBtn">☰</button>
+    
+        <ul class="top-nav-list">
+            <!-- Search bar to find any student -->
+            <li>
+                <form action="{% url 'search_student' %}" method="get" class="search-form">
+                    <input 
+                        type="text" 
+                        name="query" 
+                        placeholder="Search student by Name, ID, or Status" 
+                        required 
+                        class="search-input"
+                    />
+                    <button type="submit" class="search-btn">🔍</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
 <header class="main-header">
     <h1>Subjects</h1>
     <h3>{{ course.course_name }} - {{ section.section_name }} </h3>
@@ -128,6 +138,18 @@
                     <span class="nav-label">Subjects</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">people</span>
+                    <span class="nav-label">Instructors</span>
+                </a>
+            </li>
+                <li class="nav-item">
+                    <a href="{% url 'upload_excel' %}" class="nav-link">
+                        <span class="nav-icon material-symbols-rounded">book</span>
+                        <span class="nav-label">Add Students (via Excel)</span>
+                    </a>
+                </li>
         </ul>
 
         <!-- Separate list for Logout -->

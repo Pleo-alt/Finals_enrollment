@@ -93,8 +93,7 @@
 </aside>
  
 <div class="form-container">
-    <h2>{{ student.first_name }} {{ student.middle_name }} {{ student.last_name }}</h2>
-    <p>Current Student ID: {{ student.student_id }}</p> 
+    <h2>{{ student.first_name }} {{ student.middle_name }} {{ student.last_name }} ({{ student.student_id }})</h2>
     {% if error %}
     <div class="alert alert-danger">{{ error }}</div>
 {% endif %}
@@ -102,11 +101,7 @@
     <!-- Form to Save Changes -->
     <form method="post" id="editStudentForm">
         {% csrf_token %}
-        <!-- Student ID -->
-        <div class="form-group">
-            <label for="student_id">Student ID:</label>
-            <input type="text" id="student_id" name="student_id" value="{{ student.student_id }}" placeholder="Student ID">
-        </div>
+        <input type="hidden" name="student_id" value="{{ student.student_id }}">
 
         <!-- First Name -->
         <div class="form-group">
@@ -147,19 +142,20 @@
 </div>
 
 
-        <!-- Semester Dropdown -->
-        <div class="form-group">
-            <label for="semester">Semester:</label>
-            <select id="semester" name="semester" required>
-                {% for semester in semesters %}
-                    <option value="{{ semester.id }}" {% if semester.id == student.semester.id %}selected{% endif %}>
-                        {{ semester.semester_name }}
-                    </option>
-                {% empty %}
-                    <option value="">No semesters available</option>
-                {% endfor %}
-            </select>    
-        </div>
+      <!-- Semester Dropdown -->
+<div class="form-group">
+    <label for="semester">Semester:</label>
+    <select id="semester" name="semester" required>
+        {% for semester_value, semester_display in semesters %}
+            <option value="{{ semester_value }}" {% if semester_value == student.semester.semester_name %}selected{% endif %}>
+                {{ semester_display }}
+            </option>
+        {% empty %}
+            <option value="">No semesters available</option>
+        {% endfor %}
+    </select>    
+</div>
+
 
         <!-- Age -->
         <div class="form-group">
@@ -222,6 +218,29 @@
 <div class="form-group">
     <label for="school_year">School Year:</label>
     <input type="text" name="school_year" value="{{ student.school_year|default_if_none:'' }}" placeholder="Enter School Year (e.g., 2023-2024)">
+</div>
+<!-- Cellphone Number -->
+<div class="form-group">
+    <label for="cellphone_number">Cellphone Number:</label>
+    <input type="text" name="cellphone_number" value="{{ student.cellphone_number }}" placeholder="Enter Cellphone Number" maxlength="15" required>
+</div>
+
+<!-- Civil Status -->
+<div class="form-group">
+    <label for="civil_status">Civil Status:</label>
+    <select id="civil_status" name="civil_status" required>
+        <option value="Single" {% if student.civil_status == "Single" %}selected{% endif %}>Single</option>
+        <option value="Married" {% if student.civil_status == "Married" %}selected{% endif %}>Married</option>
+        <option value="Widowed" {% if student.civil_status == "Widowed" %}selected{% endif %}>Widowed</option>
+        <option value="Divorced" {% if student.civil_status == "Divorced" %}selected{% endif %}>Divorced</option>
+        <option value="Separated" {% if student.civil_status == "Separated" %}selected{% endif %}>Separated</option>
+    </select>
+</div>
+
+<!-- Nationality -->
+<div class="form-group">
+    <label for="nationality">Nationality:</label>
+    <input type="text" name="nationality" value="{{ student.nationality }}" placeholder="Enter Nationality">
 </div>
 
 

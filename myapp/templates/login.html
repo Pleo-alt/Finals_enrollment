@@ -36,34 +36,39 @@
                     </section>
         
                     <!-- Login Section -->
-                    <section class="login">
-                        <h2>Login</h2>
-                        <form method="post">
-                            {% csrf_token %}
-                            <label for="username_or_email"></label>
-                            <input type="text" id="username_or_email" name="username_or_email" placeholder="Username or Email" required>
-                            <i class="fas fa-user user-icon"></i> 
-                            <label for="password"></label>
-                            <input type="password" id="password" name="password" placeholder="Password" required>
-                            <i class="fas fa-eye eye-icon" id="togglePassword" onclick="togglePasswordVisibility()"></i>
-                            <p class="forgot-password">
-                                <a href="#" class="forgot-password-link">Forgot Password?</a>
-                            </p>
-                            <button type="submit">Log In</button>
-                        </form>
-                        
-                        <!-- Display any error messages only if not on the login page -->
-                        {% if messages %}
-                            <div class="error-messages">
-                                {% for message in messages %}
-                                    {% if message.tags == 'error' %}  <!-- Display only error messages -->
-                                        <p class="error">{{ message }}</p>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-
-                    </section>
+<section class="login">
+    <h2>Login</h2>
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Username or Email -->
+        <label for="username_or_email">Username or Student ID</label>
+        <input type="text" id="username_or_email" name="username_or_email" placeholder="Enter Student ID or Email" required>
+        <i class="fas fa-user user-icon"></i> 
+        
+        <!-- Password -->
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter Password" required>
+        <i class="fas fa-eye eye-icon" id="togglePassword" onclick="togglePasswordVisibility()"></i>
+        
+        <p class="forgot-password">
+            <a href="#" class="forgot-password-link">Forgot Password?</a>
+        </p>
+        
+        <button type="submit">Log In</button>
+    </form>
+    
+    <!-- Display any error messages -->
+    {% if messages %}
+        <div class="error-messages">
+            {% for message in messages %}
+                {% if message.tags == 'error' %}
+                    <p class="error">{{ message }}</p>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+</section>
                 </div>
             </div>
         </main>

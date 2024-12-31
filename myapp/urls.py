@@ -10,6 +10,8 @@ urlpatterns = [
     # Authentication and Dashboard
     path('', views.login, name='login'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('student_dashboard/', views.student_dashboard, name='student_dashboard'),
+    path('student/profile/', views.student_profile, name='student_profile'),
     path('logout/', views.logout, name='logout'),
 
     # Password reset URLs
@@ -27,6 +29,7 @@ urlpatterns = [
     path('add_section/<int:course_id>/<int:year_level_id>/', views.add_section, name='add_section'),
     path('edit_section/<int:section_id>/', views.edit_section, name='edit_section'),
     path('delete_section/<int:section_id>/', views.delete_section, name='delete_section'),
+    path('search/', views.search_student, name='search_student'),
     
     # Course, Yearlevel, Section, and Student management
     path('<str:course_name>/<str:year_level>/', views.view_section, name='sections'),

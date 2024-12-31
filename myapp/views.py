@@ -3,10 +3,12 @@ from django.http import Http404,JsonResponse
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.decorators import login_required
 from .models import Course, Yearlevel, Section, Student, Subject, Instructor, Semester
 from django.db.models import Q
 from django.utils import timezone 
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.contrib.auth.views import PasswordResetView
@@ -22,36 +24,55 @@ from weasyprint import HTML
 def login(request):
     # Redirect authenticated users to the appropriate page
     if request.user.is_authenticated:
-        if request.user.is_staff:  # Check if the user is a superuser/admin
-            return redirect('/admin')  # Redirect superuser to admin panel
-        return redirect('dashboard')  # Regular user to the dashboard
+        if request.user.is_superuser:  # Check if the user is a superuser
+            return redirect('/admin')  # Redirect to Django admin panel
+        elif request.user.is_staff:  # Check if the user is a staff member (admin, registrar, etc.)
+            return redirect('dashboard')  # Redirect to the staff dashboard
+        else:  # Assume it's a student
+            return redirect('student_dashboard')  # Redirect to the student dashboard
 
     if request.method == 'POST':
-        # Get the login input (could be username or email)
+        # Get the login input (could be student ID, username, or email)
         username_or_email = request.POST.get('username_or_email')
         password = request.POST.get('password')
-        
-        # Check if the input is an email or username
-        if '@' in username_or_email:
+
+        user = None
+
+        # Check if the input is an integer (for student ID)
+        if username_or_email.isdigit() and len(username_or_email) == 9:  # Assuming student ID is 9 digits
             try:
-                # Attempt to find the user by email
-                user = User.objects.get(email=username_or_email)
-                user = authenticate(request, username=user.username, password=password)
-            except User.DoesNotExist:
+                # Check if the student ID exists in the Student model
+                student = Student.objects.get(student_id=username_or_email)
+                # Authenticate using the student ID (set as username)
+                user = authenticate(request, username=student.student_id, password=password)
+            except Student.DoesNotExist:
                 user = None
         else:
-            # Attempt to authenticate with username
-            user = authenticate(request, username=username_or_email, password=password)
+            # If it's not a student ID, treat it as a username or email for staff or superusers
+            if '@' in username_or_email:
+                try:
+                    # Find the user by email (for staff and superusers)
+                    user = User.objects.get(email=username_or_email)
+                    user = authenticate(request, username=user.username, password=password)
+                except User.DoesNotExist:
+                    user = None
+            else:
+                # Attempt to authenticate with username (staff and superusers)
+                user = authenticate(request, username=username_or_email, password=password)
 
-        # If user is found and authentication is successful
+        # If the user is found and authenticated
         if user is not None:
             auth_login(request, user)  # Log the user in
-            if user.is_staff:  # If the user is an admin
-                return redirect('/admin')  # Redirect admin to the admin panel
-            return redirect('dashboard')  # Redirect regular user to the dashboard
+            if user.is_superuser:  # If superuser
+                return redirect('/admin')
+            elif user.is_staff:  # If staff (registrar, admin, etc.)
+                return redirect('dashboard')
+            else:  # If student
+                return redirect('student_dashboard')
         else:
-            messages.error(request, 'Invalid username/email or password.')
-            return redirect('login')  # Redirect back to login after failed login attempt
+            # Invalid credentials
+            messages.error(request, 'Invalid login credentials')
+            return redirect('login')
 
     return render(request, 'registration/login.html')
 def logout(request):
@@ -72,6 +93,18 @@ class CustomPasswordResetView(PasswordResetView):
             messages.error(self.request, "No user with this email address was found.")
             return redirect('password_reset')  # Redirect to the same page
         return super().form_valid(form)
+
+@login_required
+def student_dashboard(request):
+    if request.user.is_staff:
+        return redirect('/admin')  # Prevent staff from accessing the student dashboard
+
+    # Example context for student-specific information
+    context = {
+        'student': Student.objects.filter(student_id=request.user.username).first(),
+        'message': "Welcome to your student dashboard!",
+    }
+    return render(request, 'student_dashboard.html', context)
 
 def dashboard(request):
     # Fetch all courses and year levels
@@ -119,7 +152,6 @@ def view_section(request, course_name, year_level):
 class ExcelUploadForm(forms.Form):
     file = forms.FileField()
 
-# Upload Excel View
 def upload_excel(request):
     if request.method == 'POST':
         form = ExcelUploadForm(request.POST, request.FILES)
@@ -138,6 +170,7 @@ def upload_excel(request):
                 section_to_create = []
                 subject_to_create = []
                 student_to_create = []
+                user_to_create = []  # Store users to be created
 
                 # Process rows from the Excel file
                 for row in sheet.iter_rows(min_row=2, values_only=True):  # Skip the header row
@@ -200,6 +233,18 @@ def upload_excel(request):
                             )
                         )
 
+                        # Create user for the student (using student_id as username)
+                        user = User(
+                            username=student_id,
+                            first_name=student_first_name,
+                            last_name=student_last_name,
+                            email=email_address,
+                        )
+
+                        # Set a default password for each student (can be customized)
+                        user.set_password('cvsu@bacoor')  # Set your desired default password here
+                        user_to_create.append(user)
+
                         # Prepare students for bulk creation
                         student_to_create.append(
                             Student(
@@ -219,6 +264,7 @@ def upload_excel(request):
                                 section_name=section,
                                 semester=semester_obj,
                                 year_level=year_level_obj,
+                                user=user,  # Link user to the student
                             )
                         )
                     except Exception as e:
@@ -228,7 +274,12 @@ def upload_excel(request):
                 # Bulk create for efficiency
                 Instructor.objects.bulk_create(instructor_to_create)
                 Subject.objects.bulk_create(subject_to_create)
-                Student.objects.bulk_create(student_to_create)
+                User.objects.bulk_create(user_to_create)  # Bulk create users first
+                Student.objects.bulk_create(student_to_create)  # Then bulk create students
+
+                # After students are created, save users with passwords
+                for user in user_to_create:
+                    user.save()
 
                 return HttpResponse("File processed successfully!")
 
@@ -384,37 +435,57 @@ def add_student(request, course_id, year_level, section_name):
     if course not in year_level_obj.courses.all():
         raise Http404("Invalid course and year level combination.")
 
-    # Fetch the specific section based on the course and year level
     selected_section = get_object_or_404(Section, course_name=course, year_level=year_level_obj, section_name=section_name)
 
-    # Handle form submission
     error_message = None
     if request.method == 'POST':
-        # Extract data from the form
         first_name = request.POST.get('firstName')
         middle_name = request.POST.get('middleName')
         last_name = request.POST.get('lastName')
         age = request.POST.get('age')
-        semester_id = request.POST.get('semester')
-        status = request.POST.get('status')
+        semester_choice = request.POST.get('semester')
+        status = request.POST.get('status')  # New status field
         student_id = request.POST.get('student_id')
-        gender = request.POST.get('gender')  # Get gender
-        birthday = request.POST.get('birthday')  # Get birthday
-        address = request.POST.get('address')  # Get address
-        email_address = request.POST.get('email_address')  # Get email address
-        school_year = request.POST.get('school_year')  # Get school year
+        gender = request.POST.get('gender')
+        birthday = request.POST.get('birthday')
+        address = request.POST.get('address')
+        email_address = request.POST.get('email_address')
+        school_year = request.POST.get('school_year')
+        cellphone_number = request.POST.get('cellphone_number')  # New cellphone number field
+        civil_status = request.POST.get('civil_status')  # New civil status field
+        nationality = request.POST.get('nationality')  # New nationality field
+
+        # Convert empty fields to None
+        birthday = birthday if birthday else None
+        address = address if address else None
+        email_address = email_address if email_address else None
+        school_year = school_year if school_year else None
+        cellphone_number = cellphone_number if cellphone_number else None  # Handle blank values
+        civil_status = civil_status if civil_status else None  # Handle blank values
+        nationality = nationality if nationality else None  # Handle blank values
 
         # If no student ID is provided, auto-generate one
         if not student_id:
             student_id = generate_student_id(course, year_level_obj)
 
-        # Check if student ID already exists
+        # Validate the semester choice
+        valid_semester_choices = [choice[0] for choice in Semester.SEMESTER_CHOICES]
+        if semester_choice not in valid_semester_choices:
+            error_message = "Invalid semester choice."
+        else:
+            # Fetch the semester instance
+            semester, created = Semester.objects.get_or_create(semester_name=semester_choice)
+
+        # Debugging step: Check for existing student_id and user
         if Student.objects.filter(student_id=student_id).exists():
-            error_message = "The Student ID already exists."
+            error_message = f"The student ID {student_id} already exists in the Student table."
+        elif User.objects.filter(username=student_id).exists():
+            error_message = f"A user with the student ID {student_id} already exists in the User table."
+        elif email_address and User.objects.filter(email=email_address).exists():
+            error_message = "A user with this email address already exists. Please try again with a different email."
 
+        # Proceed only if there is no error
         if not error_message:
-            semester = get_object_or_404(Semester, id=semester_id)
-
             # Create the student instance
             student = Student(
                 first_name=first_name,
@@ -423,34 +494,59 @@ def add_student(request, course_id, year_level, section_name):
                 age=age,
                 course_name=course,
                 year_level=year_level_obj,
-                semester=semester,
-                section_name=selected_section,  # Use the selected section
-                status=status,
+                semester=semester,  # Save the selected semester
+                section_name=selected_section,
+                status=status,  # New status field
                 student_id=student_id,
-                gender=gender,  # Set gender
-                birthday=birthday,  # Save birthday
-                address=address,  # Save address
-                email_address=email_address,  # Save email address
-                school_year=school_year,  # Save school year
+                gender=gender,
+                birthday=birthday,
+                address=address,
+                email_address=email_address,
+                school_year=school_year,
+                cellphone_number=cellphone_number,  # New cellphone number field
+                civil_status=civil_status,  # New civil status field
+                nationality=nationality,  # New nationality field
             )
 
             try:
-                # Save the student to the database
+                # Save the student instance first
                 student.save()
 
+                # Create the corresponding User object **only after student is saved**
+                user = User.objects.create_user(
+                    username=student_id,  # Use student ID as the username
+                    email=email_address,
+                    first_name=first_name,
+                    last_name=last_name,
+                )
 
-                return redirect('view_students', course_name=course.course_name, year_level=year_level_obj.year_level, section_name=selected_section.section_name)
-            except IntegrityError:
-                error_message = "Student ID already exist."
+                # Set the password to 'abcd1234' (or whatever password you desire)
+                user.set_password('cvsu@bacoor')  # Set the new password here
+                user.save()  # Save the user with the updated password
+
+                # Now link the User to the Student and save again
+                student.user = user
+                student.save()  # Save the student with the linked user
+
+                return redirect(
+                    'view_students',
+                    course_name=course.course_name,
+                    year_level=year_level_obj.year_level,
+                    section_name=selected_section.section_name
+                )
+
+            except IntegrityError as e:
+                # Handle unexpected IntegrityError (if any)
+                error_message = "Failed to save the student. Please try again."
 
     # Fetch semesters and subjects for the form
-    semesters = Semester.objects.all()
+    semesters = Semester.SEMESTER_CHOICES  # Use the choices directly
     subjects = Subject.objects.all()
 
     context = {
         'course': course,
         'year_level': year_level_obj,
-        'selected_section': selected_section,  # Ensure you're passing the selected section
+        'selected_section': selected_section,
         'semesters': semesters,
         'subjects': subjects,
         'error_message': error_message,
@@ -458,8 +554,6 @@ def add_student(request, course_id, year_level, section_name):
     }
 
     return render(request, 'add_student.html', context)
-
-
 
 def generate_student_id(course, year_level):
     """Generate student ID for new students."""
@@ -478,43 +572,64 @@ def generate_student_id(course, year_level):
 
 
 def edit_student(request, student_id):
-    # Fetch the student object by its ID
     student = get_object_or_404(Student, student_id=student_id)
-
-    # Fetch all necessary data
     courses = Course.objects.all()
     year_levels = Yearlevel.objects.all()
     sections = Section.objects.filter(course_name=student.course_name, year_level=student.year_level)
-    semesters = Semester.objects.all()
+    semesters = Semester.SEMESTER_CHOICES  # Use predefined choices for semesters
     subjects = Subject.objects.all()
 
     if request.method == "POST":
-        # Get form data (including student_id)
-        student_id = request.POST.get("student_id")
+        # Debug incoming POST data
+        print("POST data:", request.POST)
+
+        # Exclude student_id from the form submission
         first_name = request.POST.get("firstName")
-        middle_name = request.POST.get("middleName", "")  # Allow empty middle name
+        middle_name = request.POST.get("middleName", "")
         last_name = request.POST.get("lastName")
         age = request.POST.get("age")
-        semester_id = request.POST.get("semester")
+        semester_choice = request.POST.get("semester")  # Updated to handle semester choices
         section_id = request.POST.get("section")
         status = request.POST.get("status")
-        gender = request.POST.get("gender")  # Get gender
+        gender = request.POST.get("gender")
         subject_ids = request.POST.getlist("subjects")
         course_id = request.POST.get("course")
         year_level_id = request.POST.get("yearLevel")
-        birthday = request.POST.get('birthday')  # Get birthday
-        address = request.POST.get('address')  # Get address
-        email_address = request.POST.get('email_address')  # Get email address
-        school_year = request.POST.get('school_year')  # Get school year
+        birthday = request.POST.get('birthday')
+        address = request.POST.get('address')
+        email_address = request.POST.get('email_address')
+        school_year = request.POST.get('school_year')
+        
+        # New fields
+        cellphone_number = request.POST.get('cellphone_number')
+        civil_status = request.POST.get('civil_status')
+        nationality = request.POST.get('nationality')
 
-        # Fetch related objects
+        if not birthday:
+            birthday = None
+
+        # Validate semester choice
+        valid_semester_choices = [choice[0] for choice in Semester.SEMESTER_CHOICES]
+        if semester_choice not in valid_semester_choices:
+            context = {
+                'student': student,
+                "courses": courses,
+                "year_levels": year_levels,
+                "sections": sections,
+                "semesters": semesters,
+                "subjects": subjects,
+                'error': "Invalid semester choice.",
+            }
+            return render(request, "edit_student.html", context)
+        else:
+            semester, created = Semester.objects.get_or_create(semester_name=semester_choice)
+
+        # Fetch the related objects
         course = get_object_or_404(Course, id=course_id)
         year_level_obj = get_object_or_404(Yearlevel, id=year_level_id)
-        semester = get_object_or_404(Semester, id=semester_id)
         section = get_object_or_404(Section, id=section_id, course_name=course, year_level=year_level_obj)
 
-        # Update student information, including the student_id
-        student.student_id = student_id  # Assign updated student_id
+        # Update student object (but DO NOT update student_id)
         student.first_name = first_name
         student.middle_name = middle_name
         student.last_name = last_name
@@ -524,25 +639,26 @@ def edit_student(request, student_id):
         student.semester = semester
         student.section_name = section
         student.status = status
-        student.gender = gender  # Update gender
-        student.birthday = birthday  # Save birthday
-        student.address = address  # Save address
-        student.email_address = email_address  # Save email address
-        student.school_year = school_year  # Save school year
+        student.gender = gender
+        student.birthday = birthday
+        student.address = address
+        student.email_address = email_address
+        student.school_year = school_year
+        student.cellphone_number = cellphone_number
+        student.civil_status = civil_status
+        student.nationality = nationality
 
-        # Handle potential IntegrityError if student_id is not unique
         try:
-            # Save the changes to the student
-            student.save()
+            # Save the student
+            with transaction.atomic():
+                student.save()
+                student.subjects.set(subject_ids)
 
-            # Update subjects (Many-to-Many relationship)
-            student.subjects.set(subject_ids)
-
-            # Redirect to the student list or detail view
+            # Redirect on success
             return redirect("view_students", course_name=course.course_name, year_level=year_level_obj.year_level, section_name=section.section_name)
 
-        except IntegrityError:
-            # Catch the IntegrityError if student_id is already taken and display an error message
+        except IntegrityError as e:
+            print("IntegrityError:", str(e))
             context = {
                 'student': student,
                 "courses": courses,
@@ -550,11 +666,11 @@ def edit_student(request, student_id):
                 "sections": sections,
                 "semesters": semesters,
                 "subjects": subjects,
-                'error': 'This Student ID is already taken. Please choose a different one.',
+                'error': f'Error: {str(e)}',
             }
             return render(request, "edit_student.html", context)
 
-    # Prepare context data for the form
+    # Render form for GET requests
     context = {
         'student': student,
         "courses": courses,
@@ -565,6 +681,7 @@ def edit_student(request, student_id):
     }
 
     return render(request, "edit_student.html", context)
+
 
 def delete_student(request, student_id):
     # Fetch the student record by its ID
@@ -577,16 +694,29 @@ def delete_student(request, student_id):
 
     # Check if the request method is POST before deleting
     if request.method == 'POST':
-        # Perform the deletion
-        student.delete()
-        messages.success(request, "Student deleted successfully!")
-        
-        # Redirect to the student list or a relevant page after deletion
-        return redirect('view_students', course_name=course_name, year_level=year_level, section_name=section_name)
+        try:
+            # Use a transaction to ensure that both Student and User are deleted atomically
+            with transaction.atomic():
+                # Delete the related User (if exists)
+                if student.user:
+                    student.user.delete()
+
+                # Now delete the student
+                student.delete()
+
+            # Success message after deletion
+            messages.success(request, "Student and related user deleted successfully!")
+
+            # Redirect to the student list or a relevant page after deletion
+            return redirect('view_students', course_name=course_name, year_level=year_level, section_name=section_name)
+
+        except Exception as e:
+            # Handle any unexpected errors that may occur during deletion
+            messages.error(request, f"Error deleting student: {str(e)}")
+            return redirect('view_students', course_name=course_name, year_level=year_level, section_name=section_name)
 
     # If not POST request, just redirect (optionally, you could display a confirmation page)
     return redirect('view_students', course_name=course_name, year_level=year_level, section_name=section_name)
-
 
 def get_year_levels(request):
     course_id = request.GET.get('course_id')
@@ -676,14 +806,33 @@ def edit_section(request, section_id):
                 }
             )
 
+        # Check if the section name already exists for the same course and year level
+        existing_section = Section.objects.filter(
+            section_name=section_name, course_name=course, year_level=year_level_obj
+        ).exclude(id=section_id)  # Exclude current section being edited
+
+        if existing_section.exists():
+            messages.error(request, "A section with this name already exists for this course and year level.")
+            return render(
+                request, "edit_section.html", {
+                    "section": section,
+                    "courses": courses,
+                    "year_levels": year_levels,
+                }
+            )
+
         # Update section information
         section.section_name = section_name
         section.course_name = course
         section.year_level = year_level_obj
         section.save()
 
-        # Redirect to the section list or detail view
-        return redirect("view_sections", course_name=course.course_name, year_level=year_level_obj.year_level)
+        # Optionally, reassign students to the new section (if applicable)
+        students_to_reassign = Student.objects.filter(section_name=section)
+        students_to_reassign.update(section_name=section)
+
+        # Redirect to the section list or detail view (use 'sections' instead of 'view_sections')
+        return redirect('sections', course_name=course.course_name, year_level=year_level_obj.year_level)
 
     # Prepare context data for the form
     context = {
@@ -693,7 +842,6 @@ def edit_section(request, section_id):
     }
     return render(request, "edit_section.html", context)
 
-
 def delete_section(request, section_id):
     # Fetch the section object by its ID
     section = get_object_or_404(Section, id=section_id)
@@ -702,11 +850,22 @@ def delete_section(request, section_id):
     course_name = section.course_name.course_name  # Assuming course_name is a ForeignKey to Course model
     year_level = section.year_level.year_level  # Assuming year_level is a ForeignKey to Yearlevel model
 
-    # Perform the deletion
+    # Get all students associated with this section and delete them
+    students = Student.objects.filter(section_name=section)
+    for student in students:
+        # Delete the associated user account for the student
+        if student.user:
+            student.user.delete()
+
+        # Delete the student record
+        student.delete()
+
+    # Perform the deletion of the section
     section.delete()
 
     # Redirect to the view_section page with course_name and year_level
     return redirect('sections', course_name=course_name, year_level=year_level)
+
 
 def assign_subjects(request, student_id):
     # Get the student and all available subjects
@@ -841,3 +1000,48 @@ def delete_subject(request, subject_id):
         # If no students are associated, just delete the subject and redirect
         subject.delete()
         return redirect('subject_list')  # Redirect to subject list or wherever you want
+
+
+@login_required
+def student_profile(request):
+    if request.method == 'POST':
+        # Handle password change
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if not request.user.check_password(current_password):
+            messages.error(request, '❌ The current password you entered is incorrect. Please try again.')
+        elif new_password != confirm_password:
+            messages.error(request, '❌ The new password and confirm password do not match. Please check your entries.')
+        elif len(new_password) < 8:  # Optional: Password validation
+            messages.error(request, '❌ Your new password must be at least 8 characters long. Please choose a stronger password.')
+        else:
+            # Update password
+            request.user.set_password(new_password)
+            request.user.save()
+            update_session_auth_hash(request, request.user)  # Keep the user logged in after password change
+            messages.success(request, '✅ Your password has been successfully updated.')
+
+        # Return the messages in a format that can be injected via AJAX
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            messages_html = render_to_string('messages.html', {'messages': messages.get_messages(request)})
+            return JsonResponse({'messages_html': messages_html})
+
+    return render(request, 'student_profile.html', {})
+
+def search_student(request):
+    query = request.GET.get('query', '').strip()
+    
+    results = Student.objects.filter(
+        Q(first_name__icontains=query) |
+        Q(last_name__icontains=query) |
+        Q(student_id__icontains=query) |
+        Q(status__icontains=query) 
+    )
+    
+    context = {
+        'query': query,
+        'results': results,
+    }
+    return render(request, 'search_results.html', context) 

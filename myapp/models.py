@@ -1,6 +1,7 @@
 from django.db import models
 from django.db import transaction
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 # Course model
 class Course(models.Model):
@@ -31,13 +32,16 @@ class Yearlevel(models.Model):
         verbose_name = 'Year Level'
         verbose_name_plural = 'Year Levels'
 
-# Semester model to store semester data
 class Semester(models.Model):
-    semester_name = models.CharField(max_length=200)
+    SEMESTER_CHOICES = [
+        ('1st Semester', '1st Semester'),
+        ('2nd Semester', '2nd Semester'),
+    ]
+
+    semester_name = models.CharField(max_length=200, choices=SEMESTER_CHOICES)
 
     def __str__(self):
         return self.semester_name
-
 # Instructor model for teachers/lecturers
 class Instructor(models.Model):
     first_name = models.CharField(max_length=200)
@@ -77,6 +81,7 @@ class Subject(models.Model):
         return self.subject_name
 
 class Student(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile', null=True, blank=True)
     course_name = models.ForeignKey(Course, on_delete=models.CASCADE)
     year_level = models.ForeignKey(Yearlevel, on_delete=models.CASCADE)
     section_name = models.ForeignKey(Section, on_delete=models.CASCADE)
@@ -86,15 +91,50 @@ class Student(models.Model):
     middle_name = models.CharField(max_length=200, null=True, blank=True)
     last_name = models.CharField(max_length=200)
     age = models.IntegerField(null=True)
-    birthday = models.DateField(null=True, blank=True)  # New field
-    address = models.CharField(max_length=500, null=True, blank=True)  # Changed to CharField
-    email_address = models.EmailField(unique=True, null=True, blank=True)  # New field
-    school_year = models.CharField(max_length=9, null=True, blank=True)  # New field
+    birthday = models.DateField(null=True, blank=True) 
+    address = models.CharField(max_length=500, null=True, blank=True)  
+    email_address = models.EmailField(unique=True, null=True, blank=True)  
+    school_year = models.CharField(max_length=9, null=True, blank=True)  
     enrollment_date = models.DateField(null=True, blank=True)
 
     student_id = models.CharField(max_length=9, unique=True, blank=True, null=True, db_index=True)
-    status = models.CharField(max_length=100, blank=True, null=True)
+    cellphone_number = models.CharField(max_length=15, blank=True, null=True)
+    nationality = models.CharField(max_length=100, default="Filipino")
+    
+    # Define choices for civil_status
+    SINGLE = 'Single'
+    MARRIED = 'Married'
+    DIVORCED = 'Divorced'
+    WIDOWED = 'Widowed'
+    SEPARATED = 'Separated'
+    
+    CIVIL_STATUS_CHOICES = [
+        (SINGLE, 'Single'),
+        (MARRIED, 'Married'),
+        (DIVORCED, 'Divorced'),
+        (WIDOWED, 'Widowed'),
+        (SEPARATED, 'Separated'),
+    ]
+    
+    civil_status = models.CharField(
+        max_length=100,
+        choices=CIVIL_STATUS_CHOICES,
+        default=SINGLE  # Default value can be set to "Single"
+    )
 
+    REGULAR = 'Regular'
+    IRREGULAR = 'Irregular'
+    
+    STATUS_CHOICES = [
+        (REGULAR, 'Regular'),
+        (IRREGULAR, 'Irregular'),
+    ]
+    
+    status = models.CharField(
+        max_length=100,
+        choices=STATUS_CHOICES,
+        default=REGULAR  # Default value can be set to "Regular"
+    )
     GENDER_CHOICES = [
         ('Male', 'Male'),
         ('Female', 'Female'),

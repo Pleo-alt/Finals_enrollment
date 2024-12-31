@@ -1,0 +1,526 @@
+/* General Reset */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    padding: 0;
+}
+
+/* Top Navbar */
+.top-navbar {
+    background-color: darkgreen;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 20px;
+    color: white;
+    position: relative;
+}
+
+.top-navbar .navbar-title {
+    position: absolute;
+    left: 20%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.top-navbar .top-nav-list {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+    margin-left: auto;
+}
+
+.top-navbar .top-nav-list li {
+    margin-right: 20px;
+}
+
+.top-navbar .top-nav-list li a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+
+.top-navbar .top-nav-list li a:hover {
+    text-decoration: underline;
+}
+
+/* Main Header */
+.main-header {
+    text-align: center;
+    background: url('background.jpg');
+    background-size: cover;
+    padding: 60px 20px;
+    margin-bottom: 40px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    color: white;
+}
+
+
+
+/* Main Container */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin-top: 2%;
+    margin-bottom: 2%;
+    margin-left: 3%;
+}
+
+/* Header Logo */
+.header-logo img {
+    width: 130px;
+    height: auto;
+    margin-top: 30px;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Title (course name) */
+h2 {
+    margin: 15px 0;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: opacity 0.3s ease;
+}
+
+/* Year List (hidden initially) */
+.year-list {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 15px;
+    opacity: 0;
+    position: absolute;
+    bottom: -60px;
+    left: 0;
+    right: 0;
+    transition: bottom 0.3s ease, opacity 0.3s ease;
+    border-radius: 10px;
+}
+
+
+
+.year-list li {
+    color: white;
+    margin: 5px 0;
+    font-size: 18px;
+    font-family: 'Arial', sans-serif;
+    font-weight: 500;
+    padding: 12px 20px;
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.year-list li::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0%;
+    height: 5px;
+    background-color: white;
+    transition: width 0.3s ease, left 0.3s ease;
+}
+
+.year-list li:hover::before {
+    width: 100%;
+    left: 0;
+}
+
+
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    background: #151A2D;
+    transition: left 0.4s ease, width 0.4s ease;
+    z-index: 1000;
+}
+
+.sidebar.collapsed {
+    width: 60px;
+}
+
+.sidebar-header {
+    padding: 50px;
+    text-align: center;
+    background-color: #151A2D;
+}
+
+.sidebar.collapsed .sidebar-header {
+    padding: 10px;
+}
+
+.sidebar.collapsed .header-logo {
+    display: none;
+}
+
+.sidebar-header .header-logo img {
+    width: 75%;
+    height: auto;
+}
+
+.sidebar-nav .nav-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 0;
+}
+
+.sidebar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    position: relative;
+}
+
+.sidebar-nav .nav-link::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0%;
+    height: 4px;
+    background-color: green;
+    transition: width 0.3s ease, left 0.3s ease;
+}
+
+.sidebar-nav .nav-link:hover::before {
+    width: 100%;
+    left: 0;
+}
+
+.sidebar-nav .nav-link:hover {
+    color: white;
+}
+
+.sidebar.collapsed .nav-icon,
+.sidebar.collapsed .nav-label {
+    display: none;
+}
+
+.nav-icon {
+    font-size: 24px;
+    margin-right: 15px;
+}
+
+
+
+
+body.sidebar-open {
+    margin-left: 250px;
+    transition: margin-left 0.4s ease;
+}
+body.sidebar-open.sidebar-collapsed {
+    margin-left: 60px;   /* When sidebar is collapsed */
+}
+.sidebar.collapsed {
+    width: 60px;  /* Sidebar width when collapsed */
+}
+
+#toggleBtn {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 30px;
+    color: white;
+    z-index: 1100;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.sidebar.collapsed #toggleBtn {
+    left: 65px;
+}
+
+.sidebar.collapsed .nav-icon {
+    margin-left: 20px;
+}
+
+.sidebar.collapsed .sidebar-nav {
+    margin-top: 50px;
+}
+
+.sidebar.collapsed .sidebar-nav {
+    margin-left: 60px;
+}
+
+
+/* Menu Arrow Rotation */
+.nav-arrow {
+    margin-left: auto;
+    transform: rotate(90deg);
+    transition: transform 0.3s ease;
+    
+}
+
+.nav-item.open .nav-arrow {
+    transform: rotate(0deg);
+}
+
+/* Submenu Styling */
+.sub-menu {
+    display: none;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background-color: none;
+    border-radius: 5px;
+    position: relative;
+    z-index: 1;
+}
+
+/* section cs and it option */
+/* Sub-menu styling */
+.sub-menu {
+    display: none;
+    list-style-type: none;
+    padding-left: 20px;
+}
+
+/* Inner-sub-menu for Computer Science & IT */
+.inner-sub-menu {
+    display: none;
+    list-style-type: none;
+    padding-left: 20px;
+}
+
+/* Toggle class to show the menu */
+.sub-menu.active, .inner-sub-menu.active {
+    display: block;
+}
+
+/* Arrow rotation styling */
+.nav-arrow.rotate {
+    transform: rotate(180deg);
+    transition: transform 0.3s;
+}
+
+.nav-item.open .sub-menu {
+    display: block;
+}
+
+/* Submenu Links */
+.nav-sub-item {
+    margin: 0;
+    padding: 0;
+}
+
+.nav-sub-link {
+    display: block;
+    position: relative;
+    padding: 10px 15px;
+    color: #ecf0f1;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.nav-labels {
+  margin-left: 14px;
+  font-size: 14px;
+}
+
+/* Green underline effect */
+.nav-sub-link::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0%;
+    height: 2px;
+    background-color: green;
+    transition: width 0.3s ease, left 0.3s ease;
+}
+
+.nav-sub-link:hover::before {
+    width: 100%;
+    left: 0;
+}
+
+.nav-item.open .sub-menu {
+    display: block;
+    animation: fadeIn 0.3s ease; /* Smooth submenu appearance */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.nav-arrow {
+    margin-left: auto;
+    transform: rotate(90deg);
+    transition: transform 0.3s ease;
+}
+
+.nav-item.open .nav-arrow {
+    transform: rotate(0deg); /* Rotate back when open */
+}
+
+
+/* Sidebar open and collapsed states */
+body.sidebar-open {
+    margin-left: 250px;
+    transition: margin-left 0.4s ease;
+}
+body.sidebar-open.sidebar-collapsed {
+    margin-left: 60px;
+}
+
+.sidebar.collapsed {
+    width: 60px;
+}
+.sidebar.collapsed .sidebar-nav .nav-link {
+    justify-content: center;
+}
+
+.sidebar.collapsed .nav-label,
+.sidebar.collapsed .nav-arrow {
+    display: none;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    text-align: center;
+    background-color: darkgreen;
+    color: white;
+    margin-top: 20px;
+    padding: 20px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard-header h1 {
+    font-size: 36px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* Dashboard Main */
+.dashboard-main {
+    padding: 20px 40px;
+    background-color: #f5f5f5;
+}
+
+/* Dashboard Sections */
+.dashboard-section {
+    background: white;
+    border-radius: 10px;
+    padding: 20px 30px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-section h2, .dashboard-section h3 {
+    font-size: 24px;
+    font-weight: bold;
+    color: darkgreen;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+}
+
+.dashboard-section p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+}
+
+
+
+/* Form Styling */
+.password-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: bold;
+    color: darkgreen;
+}
+
+.form-group input {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+    border-color: darkgreen;
+    outline: none;
+}
+
+/* Button Styling */
+.btn-submit {
+    padding: 10px 20px;
+    background-color: darkgreen;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-submit:hover {
+    background-color: green;
+    transform: scale(1.05);
+}
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-container input {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+}
+
+.password-container i {
+    position: absolute;
+    right: 10px;
+    font-size: 18px;
+    color: #888;
+    transition: color 0.3s ease;
+    cursor: pointer;
+}
+
+.password-container i:hover {
+    color: darkgreen;
+}

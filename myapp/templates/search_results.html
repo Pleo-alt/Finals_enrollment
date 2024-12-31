@@ -1,0 +1,184 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cavite State University - Bacoor Campus</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded">
+    <link rel="stylesheet" href="{% static 'css/search_styles.css' %}">
+    <style>
+        .main-header{
+            background: url("{% static 'img/background.jpg' %}");
+             background-size: cover;
+             background-position: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navbar -->
+    <nav class="top-navbar">
+        <div class="navbar-title">
+            <a href="{% url 'dashboard' %}">
+                Cavite State University - Bacoor Campus
+            </a>
+        </div>
+    
+        <button id="toggleBtn" class="toggleBtn">☰</button>
+    
+        <ul class="top-nav-list">
+            <!-- Search bar to find any student -->
+            <li>
+                <form action="{% url 'search_student' %}" method="get" class="search-form">
+                    <input 
+                        type="text" 
+                        name="query" 
+                        placeholder="Search student by name or ID..." 
+                        required 
+                        class="search-input"
+                    />
+                    <button type="submit" class="search-btn">🔍</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+<header class="main-header">
+    <h1>Search Results</h1>
+</header>
+<div class="table-container">
+    <div class="table-header">
+        <h2>Results for "{{ query }}":</h2>
+        </div>
+
+    <table class="enrollment-table">
+        <thead>
+            <tr>
+                <th>Student Id</th>
+                <th>First Name</th>
+                <th>Middle Name</th>
+                <th>Last Name</th>
+                <th>Year Level</th>
+                <th>Semester</th>
+                <th>Section</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Enrollment Date</th>
+                <th>Status</th>
+                <th>Subjects</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in results %}
+            <tr>
+                <td><a href="{% url 'edit_student' student_id=student.student_id %}">{{ student.student_id }}</a></td>
+                <td>{{ student.first_name }}</td>
+                <td>{{ student.middle_name|default:'' }}</td>
+                <td>{{ student.last_name }}</td>
+                <td>{{ student.year_level.year_level }}</td>
+                <td>{{ student.semester.semester_name }}</td>
+                <td>{{ student.section_name.section_name }}</td>
+                <td>{{ student.age }}</td>
+                <td>{{ student.get_gender_display }}</td>
+                <td>{{ student.enrollment_date }}</td>
+                <td>{{ student.status|default:"Regular" }}</td>
+                <td>
+                    <!-- 'View Subjects' link can stay outside the row click action -->
+                    <a href="{% url 'view_student_subjects' student.course_name.course_name student.year_level.year_level student.section_name.section_name student.id %}" class="view-subjects">View Subjects</a>
+
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="12">No student matches the search</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+   </div>
+
+    
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="header-logo">
+            <img src="{% static 'img/cvsulogo.png' %}" alt="CVSU Logo">
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <ul class="nav-list primary-nav">
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">group</span>
+                    <span class="nav-label">Profile</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'dashboard' %}" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">dashboard</span>
+                    <span class="nav-label">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">view_list</span>
+                    <span class="nav-label">Sections</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">school</span>
+                    <span class="nav-label">Students</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">book</span>
+                    <span class="nav-label">Subjects</span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Separate list for Logout -->
+        <ul class="nav-list secondary-nav">
+            <li class="nav-item">
+                <a href="{% url 'logout' %}" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">logout</span>
+                    <span class="nav-label">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</aside>
+ 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleBtn = document.getElementById('toggleBtn');
+    const sidebar = document.querySelector('.sidebar');
+    const body = document.body;
+    
+    // Initially, the sidebar is expanded, and the body content adjusts.
+    sidebar.classList.remove('collapsed');  // Sidebar is expanded by default
+    body.classList.add('sidebar-open');     // Body content adjusts when sidebar is open
+
+    // Toggle the collapsed state on button click.
+    toggleBtn.addEventListener('click', function () {
+        sidebar.classList.toggle('collapsed');  // Toggle collapse state
+        body.classList.toggle('sidebar-open');  // Adjust body when sidebar is open  
+    });
+    
+    //Forms when the add button is clicked
+    const addStudentBtn = document.querySelector('.add-student-btn');
+    addStudentBtn.addEventListener('click', function () {
+        // Change this URL to your actual add-student template/page
+        window.location.href = 'forms.html'; 
+    });
+
+});
+</script>
+</body>
+</html>
+
+
+
+

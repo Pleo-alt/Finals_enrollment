@@ -1,0 +1,160 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Cavite State University</title>
+    <!-- Include Material Symbols for icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded">
+    <!-- Link to external stylesheet -->
+    <link rel="stylesheet" href="{% static 'css/student_dashboard_styles.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        .main-header {
+            background: url("{% static 'img/background.jpg' %}");
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navbar -->
+    <nav class="top-navbar">
+        <div class="navbar-title">
+            Cavite State University - Bacoor Campus
+        </div>
+        <button id="toggleBtn" class="toggleBtn">☰</button>
+    </nav>
+
+    <!-- Main Header -->
+    <header class="main-header">
+        <h1>Welcome, </h1>
+        <h3>{{ student.first_name }} {{ student.middle_name }} {{ student.last_name }}</h3>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <!-- Sidebar Header with Logo -->
+        <div class="sidebar-header">
+            <div class="header-logo">
+                <img src="{% static 'img/cvsulogo.png' %}" alt="CVSU Logo">
+            </div>
+        </div>
+        <!-- Navigation Links -->
+        <nav class="sidebar-nav">
+            <ul class="nav-list primary-nav">
+                <!-- Profile Link -->
+                <li class="nav-item">
+                    <a href="{% url 'student_profile' %}" class="nav-link">
+                        <span class="nav-icon material-symbols-rounded">person</span>
+                        <span class="nav-label">Profile</span>
+                    </a>
+                </li>
+                <!-- Dashboard Link -->
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon material-symbols-rounded">Home</span>
+                        <span class="nav-label">Home</span>
+                    </a>
+                </li>
+
+                <!-- Other Navigation Items -->
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon material-symbols-rounded">school</span>
+                        <span class="nav-label">Account Balance </span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon material-symbols-rounded">code</span>
+                        <span class="nav-label">Subjects</span>
+                    </a>
+                </li>
+            </ul>
+            <!-- Separate list for Logout -->
+        <ul class="nav-list secondary-nav">
+            <li class="nav-item">
+                <a href="{% url 'logout' %}" class="nav-link">
+                    <span class="nav-icon material-symbols-rounded">logout</span>
+                    <span class="nav-label">Logout</span>
+                </a>
+            </li>
+        </ul>
+        </nav>
+    </aside>
+
+    <!-- Certificate of Registration -->
+    <div class="certificate-container">
+        <h2>Certificate of Registration</h2>
+        <div class="student-info-container">
+            <div class="student-info-row">
+                <div><i class="fas fa-id-card"></i> <strong>Student Number:</strong> {{ student.student_id }}</div>
+                <div><i class="fas fa-users"></i> <strong>Course and Section:</strong> {{ student.course_name }} {{ student.section_name }}</div>
+            </div>
+            <div class="student-info-row">
+                <div><i class="fas fa-user"></i> <strong>Student Name:</strong> {{ student.first_name }} {{ student.last_name }}</div>
+                <div><i class="fas fa-graduation-cap"></i> <strong>Year:</strong> {{ student.year_level }}</div>
+            </div>
+            <div class="student-info-row">
+                <div><i class="fas fa-pencil-alt"></i> <strong>Semester:</strong> {{ student.semester }}</div>
+                <div><i class="fas fa-calendar-alt"></i> <strong>Date:</strong> {{ student.enrollment_date }}</div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Course Code</th>
+                    <th>Course Description</th>
+                    <th>Units</th>
+                    <th>Time</th>
+                    <th>Day</th>
+                    <th>Room</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subject in student.subjects.all %}
+                    <tr>
+                        <td>{{ subject.course_code }}</td>
+                        <td>{{ subject.description }}</td>
+                        <td>{{ subject.units }}</td>
+                        <td>{{ subject.time }}</td>
+                        <td>{{ subject.day }}</td>
+                        <td>{{ subject.room }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6">No subjects assigned yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.getElementById('toggleBtn');
+            const sidebar = document.querySelector('.sidebar');
+            const body = document.body;
+
+            // Initially, the sidebar is expanded
+            sidebar.classList.remove('collapsed');  
+            body.classList.add('sidebar-open');     
+
+            // Toggle the collapsed state on button click
+            toggleBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('collapsed');  
+                body.classList.toggle('sidebar-open');  
+            });
+        });
+
+        /* For menu bar */
+        function toggleSubMenu(event) {
+            event.preventDefault();
+            const navItem = event.currentTarget.closest('.nav-item');
+            navItem.classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

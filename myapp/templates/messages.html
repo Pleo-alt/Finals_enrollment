@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profile</title>
+    <style>
+        /* Modal styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 9999; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* Transparent background */
+            display: flex; /* Use flexbox for centering */
+            justify-content: center;
+            align-items: center;
+        }
+    
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            width: 70%; /* Adjust the width of the modal */
+            max-width: 600px; /* Max width for smaller screens */
+            text-align: center;
+            position: relative;
+        }
+    
+        .close-btn {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+        }
+    
+        .close-btn:hover,
+        .close-btn:focus {
+            color: #000;
+            text-decoration: none;
+        }
+    
+        /* Message styles */
+        .messages ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+    
+        .messages li {
+            margin: 15px 0;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    
+        /* Error message style (Red) */
+        .messages li.error {
+            color: #d9534f; /* Red color for error messages */
+        }
+    
+        /* Success message style (Green) */
+        .messages li.success {
+            color: #00ff00; /* Green color for success messages */
+        }
+    
+        /* Warning message style (Orange) */
+        .messages li.warning {
+            color: #ffa01b; /* Yellow color for warning messages */
+        }
+    
+        .messages li span {
+            margin-left: 10px; /* Space between icon and text */
+        }
+    
+        .messages li i {
+            font-size: 24px; /* Bigger icon */
+        }
+    
+        /* Icons for different message types */
+        .error-icon {
+            color: #d9534f;
+        }
+    
+        .success-icon {
+            color: #00ff00;
+        }
+    
+        .warning-icon {
+            color: #ff9807;
+        }
+    </style>
+</head>
+<body>
+    <!-- Messages Modal -->
+    <div id="messageModal" class="modal" data-messages="{{ messages|length }}">
+        <div class="modal-content">
+            <span class="close-btn" id="closeModal">&times;</span>
+            <div class="messages">
+                <!-- Display success or error messages -->
+                {% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li class="{{ message.tags }}">
+                {% if message.tags == 'error' %}
+                    <i class="fas fa-times-circle error-icon"></i> <!-- Red Icon for Error -->
+                {% elif message.tags == 'success' %}
+                    <i class="fas fa-check-circle success-icon"></i> <!-- Green Icon for Success -->
+                {% elif message.tags == 'warning' %}
+                    <i class="fas fa-exclamation-circle warning-icon"></i> <!-- Orange Icon for Warning -->
+                {% endif %}
+                <span>{{ message }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to open the modal
+        function openModal() {
+            const modal = document.getElementById("messageModal");
+            modal.style.display = "flex";  // Use 'flex' to ensure the modal is centered
+        }
+
+        // Function to close the modal
+        function closeModal() {
+            const modal = document.getElementById("messageModal");
+            modal.style.display = "none";
+        }
+
+        // Event listener for close button
+        document.getElementById("closeModal").addEventListener("click", closeModal);
+
+        // Close the modal if the user clicks anywhere outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById("messageModal");
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Open modal if there are messages
+        const modal = document.getElementById("messageModal");
+        if (modal.dataset.messages > 0) {
+            openModal();
+        }
+
+        // Toggle password visibility for all password fields
+        document.querySelectorAll('.toggle-password').forEach(function(icon) {
+            icon.addEventListener('click', function() {
+                const passwordField = document.querySelector(icon.getAttribute('data-target'));
+                const type = passwordField.type === 'password' ? 'text' : 'password';
+                passwordField.type = type;
+                icon.classList.toggle('fa-eye-slash');
+            });
+        });
+    </script>
+</body>
+</html>
